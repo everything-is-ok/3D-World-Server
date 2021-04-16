@@ -1,3 +1,4 @@
+import jwt from "jsonwebtoken";
 // TODO: delete codes below, make new one
 
 const User = require("../models/User");
