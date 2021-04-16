@@ -28,7 +28,11 @@ app.use(express.static(path.join(__dirname, "public")));
 db.init();
 
 // NOTE: old version : socket.io.attach(server);
-socket.io.listen(server);
+socket.io.listen(server, {
+  cors: {
+    origin: [process.env.CLIENT_URL],
+  },
+});
 
 app.use("/", router);
 
