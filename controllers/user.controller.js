@@ -24,27 +24,7 @@ function postLogin(req, res, next) {
   } catch (error) {
     res.status(500).json({ error: { message: "Internal Server Error" } });
   }
-
-
 }
 
 exports.getUser = getUser;
 exports.postLogin = postLogin;
-
-// const { displayName, email, photoURL } = req.body;
-
-//   const user = {
-//     email,
-//     photoURL,
-//     displayName,
-//   };
-
-//   const { doc: userInDB } = await User.findOrCreate(user);
-
-//   const accessToken = jwt.sign(
-//     { id: userInDB._id, displayName, photoURL },
-//     process.env.ACCESS_TOKEN_SECRET,
-//     { expiresIn: 10000 }
-//   );
-
-//   res.status(201).json(accessToken);
