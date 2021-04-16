@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const findOrCreate = require("mongoose-findorcreate");
 
 // TODO: add schema
 
@@ -15,5 +16,7 @@ const userSchema = new mongoose.Schema({
 }, {
   timestamps: true,
 });
+
+userSchema.plugin(findOrCreate);
 
 module.exports = mongoose.model("User", userSchema);
