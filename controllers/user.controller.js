@@ -22,7 +22,7 @@ function postLogin(req, res, next) {
     res.cookie("authorization", `bearer ${accessToken}`);
     res.json({ data: user });
   } catch (error) {
-    res.status(500).json({ error });
+    res.status(500).json({ error: { message: "Internal Server Error" } });
   }
 
 
