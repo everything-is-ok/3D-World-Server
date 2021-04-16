@@ -54,4 +54,8 @@
    npm run dev // dev
    ```
 
+## 🌴 GIT LOG GRAPH
+git tree를 rebase를 통해 잘 관리 했다면 넣어볼 만 할수도? (고려)
+![gitloggraph](./public/readme_img_src/git-tree.png)
+
 ## 🔖 API 명세
