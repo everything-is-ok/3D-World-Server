@@ -44,8 +44,7 @@
    ```
 
 3. `dotenv` 설정
-   - `.env.practice` 내용 설정
-   - `.practice` 삭제
+   - `.env.sample`를 참고하여 `.env` 설정
 
 <br>
 
