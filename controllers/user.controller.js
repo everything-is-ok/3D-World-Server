@@ -7,7 +7,7 @@ const User = require("../models/User");
 async function getUser(req, res, next) {
   const { authorization } = req.cookie;
 
-  if (authorization) {
+  if (!authorization) {
     next(createError(401, "authorization is not exist."));
     return;
   }
@@ -19,13 +19,18 @@ async function getUser(req, res, next) {
     const user = await User.findById(id)?.lean();
 
     if (!user) {
-      next(createError(401, "authorization is not correct."));
+      next(createError(400, "user is not exist."));
       return;
     }
 
     res.json({ data: user });
   } catch (error) {
-    next(createError(400, error));
+    if (error instanceof jwt.JsonWebTokenError) {
+      next(createError(401, "authorization is not correct."));
+      return;
+    }
+
+    next(error);
   }
 }
 
