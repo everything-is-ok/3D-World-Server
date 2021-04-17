@@ -6,7 +6,7 @@ const mongoose = require("mongoose");
 const User = require("../models/User");
 
 async function getUserByToken(req, res, next) {
-  const { authorization } = req.cookie;
+  const { authorization } = req.cookies;
 
   // NOTE: deserialize에서 걸러준다면, 없어도 되는 케이스일 것 같다
   if (!authorization) {
@@ -71,6 +71,7 @@ async function deleteUser(req, res, next) {
 async function getUserById(req, res, next) {
   const { id } = req.params;
 
+  // NOTE: id의 형식이 _id인지를 확인해주는 부분인데, 현재 db의 data기준 오류남. 어디가 잘못된것이지?
   if (!(id instanceof mongoose.Types.ObjectId)) {
     next(createError(400, "id of param is invalid."));
     return;
