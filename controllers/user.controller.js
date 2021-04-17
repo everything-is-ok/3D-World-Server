@@ -34,6 +34,7 @@ async function getUser(req, res, next) {
   }
 }
 
+// NOTE: deserialize에서 req.user === null인 케이스를 걸렀다는 전제로 작성
 async function deleteUser(req, res, next) {
   const { _id } = req.user;
 
@@ -65,7 +66,7 @@ async function postLogin(req, res, next) {
     res.cookie("authorization", `bearer ${accessToken}`);
     res.json({ data: user });
   } catch (error) {
-    // NOTE: next를 이용해서 error handling middleware에서 처리해야하는 것 아닌가요?
+    // NOTE: next를 이용해서 error handler middleware에서 처리해야하는 것 아닌가요?
     res.status(500).json({ error: { message: "Internal Server Error" } });
   }
 }
