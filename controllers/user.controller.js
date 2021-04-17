@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const createError = require("http-errors");
+const mongoose = require("mongoose");
 // TODO: req.user가 어떤식으로 들어오는지 확인 필요
 
 const User = require("../models/User");
@@ -7,6 +8,7 @@ const User = require("../models/User");
 async function getUserByToken(req, res, next) {
   const { authorization } = req.cookie;
 
+  // NOTE: deserialize에서 걸러준다면, 없어도 되는 케이스일 것 같다
   if (!authorization) {
     next(createError(401, "authorization is not exist."));
     return;
@@ -66,6 +68,30 @@ async function deleteUser(req, res, next) {
   }
 }
 
+async function getUserById(req, res, next) {
+  const { id } = req.params;
+
+  if (!(id instanceof mongoose.Types.ObjectId)) {
+    next(createError(400, "id of param is invalid."));
+    return;
+  }
+
+  try {
+    const user = await User.findById(id)?.lean();
+
+    if (!user) {
+      // NOTE: 404 not found를 띄울지는 client에서 결정하는 것이므로, 서버에서는 id가 없다는 정보를 주면 될까?
+      next(createError(400, "user is not exist."));
+      return;
+    }
+
+    res.json({ data: user });
+  } catch (error) {
+    next(error);
+  }
+}
+
 exports.getUserByToken = getUserByToken;
 exports.postLogin = postLogin;
 exports.deleteUser = deleteUser;
+exports.getUserById = getUserById;
