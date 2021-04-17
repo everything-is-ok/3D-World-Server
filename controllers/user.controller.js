@@ -1,14 +1,49 @@
-import jwt from "jsonwebtoken";
-// TODO: delete codes below, make new one
+const jwt = require("jsonwebtoken");
+const createError = require("http-errors");
+// TODO: req.user가 어떤식으로 들어오는지 확인 필요
 
 const User = require("../models/User");
 
-function getUser(req, res) {
-  res.status(200).json({
-    data: {
-      // data
-    },
-  });
+async function getUser(req, res, next) {
+  const { authorization } = req.cookie;
+
+  if (authorization) {
+    next(createError(401, "authorization is not exist."));
+    return;
+  }
+
+  const token = authorization.split("bearer ")[1];
+
+  try {
+    const { id } = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    const user = await User.findById(id)?.lean();
+
+    if (!user) {
+      next(createError(401, "authorization is not correct."));
+      return;
+    }
+
+    res.json({ data: user });
+  } catch (error) {
+    next(createError(400, error));
+  }
+}
+
+async function deleteUser(req, res, next) {
+  const { _id } = req.user;
+
+  try {
+    const user = await User.deleteOne({ _id });
+
+    if (!user) {
+      next(createError(400, "Not Found User"));
+      return;
+    }
+
+    res.json({ data: user });
+  } catch (error) {
+    next(error);
+  }
 }
 
 async function postLogin(req, res, next) {
@@ -25,9 +60,11 @@ async function postLogin(req, res, next) {
     res.cookie("authorization", `bearer ${accessToken}`);
     res.json({ data: user });
   } catch (error) {
+    // NOTE: next를 이용해서 error handling middleware에서 처리해야하는 것 아닌가요?
     res.status(500).json({ error: { message: "Internal Server Error" } });
   }
 }
 
 exports.getUser = getUser;
+exports.deleteUser = deleteUser;
 exports.postLogin = postLogin;
