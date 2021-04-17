@@ -4,7 +4,7 @@ const createError = require("http-errors");
 
 const User = require("../models/User");
 
-async function getUser(req, res, next) {
+async function getUserByToken(req, res, next) {
   const { authorization } = req.cookie;
 
   if (!authorization) {
@@ -34,24 +34,6 @@ async function getUser(req, res, next) {
   }
 }
 
-// NOTE: deserialize에서 req.user === null인 케이스를 걸렀다는 전제로 작성
-async function deleteUser(req, res, next) {
-  const { _id } = req.user;
-
-  try {
-    const user = await User.deleteOne({ _id });
-
-    if (!user) {
-      next(createError(400, "Not Found User"));
-      return;
-    }
-
-    res.json({ data: user });
-  } catch (error) {
-    next(error);
-  }
-}
-
 async function postLogin(req, res, next) {
   const { userData } = req.body;
 
@@ -71,6 +53,19 @@ async function postLogin(req, res, next) {
   }
 }
 
-exports.getUser = getUser;
-exports.deleteUser = deleteUser;
+// NOTE: deserialize에서 req.user === null인 케이스를 걸렀다는 전제로 작성
+async function deleteUser(req, res, next) {
+  const { _id } = req.user;
+
+  try {
+    const user = await User.deleteOne({ _id });
+
+    res.json({ data: user });
+  } catch (error) {
+    next(error);
+  }
+}
+
+exports.getUserByToken = getUserByToken;
 exports.postLogin = postLogin;
+exports.deleteUser = deleteUser;

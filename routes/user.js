@@ -4,10 +4,9 @@ const userController = require("../controllers/user.controller");
 
 const router = express.Router();
 
-router.get("/", userController.getUser);
-router.delete("/", userController.deleteUser);
-
 // TODO: rename
+router.get("/", userController.getUserByToken);
 router.post("/", userController.postLogin);
+router.delete("/", userController.deleteUser);
 
 module.exports = router;
