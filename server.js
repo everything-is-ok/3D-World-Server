@@ -1,5 +1,6 @@
 if (process.env.NODE_ENV) {
   // TODO isproduction 이나 isDev 등 사용시, 변수로 할당해도 좋을 듯
+  // NOTE: eslint convention 확인
   require("dotenv").config();
 }
 
@@ -15,6 +16,7 @@ const db = require("./configs/db");
 const socket = require("./configs/socket");
 
 const app = express();
+// NOTE: eslint convention 확인
 const server = require("http").createServer(app);
 
 // NOTE: logger가 맨 위에 있어야 할것 같아서 그렇게 배치함, 확인 필요합니다.
