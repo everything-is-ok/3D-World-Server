@@ -12,19 +12,24 @@ function getUser(req, res) {
 }
 
 async function postLogin(req, res, next) {
-  const { userData } = req.body;
-
-  // TODO: 유저데이터로 find-or-create시, 유저의 데이터 중 하나가 달라지면 찾는가 생성하는가 등의 문제 찾고 해결하기.
-  const { doc: user } = await User.findOrCreate(userData);
+  // data 어떻게 받을지, 그리고 이름 필드 필요.(닉네임 뿐 아니라)
+  const { email, name } = req.body;
 
   try {
-    const accessToken = jwt.sign({
-      id: user._id,
-    }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "3h" });
+    await User.findOrCreate({ email }, { name }, (error, user) => {
+      if (error) {
+        throw new Error();
+      }
 
-    res.cookie("authorization", `bearer ${accessToken}`);
-    res.json({ data: user });
+      const accessToken = jwt.sign({
+        id: user._id,
+      }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "3h" });
+
+      res.cookie("authorization", `bearer ${accessToken}`);
+      res.json({ data: user });
+    });
   } catch (error) {
+    // TODO: error specify! : if found error on model or jwt
     res.status(500).json({ error: { message: "Internal Server Error" } });
   }
 }
