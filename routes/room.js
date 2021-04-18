@@ -5,4 +5,6 @@ const deserialize = require("../middlewares/deserialize");
 
 router.get("/", deserialize, roomControllers.getRoomByToken);
 
+router.get("/:id", roomControllers.getRoomById);
+
 module.exports = router;
