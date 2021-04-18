@@ -57,7 +57,7 @@ async function updateUser(req, res, next) {
     return;
   }
 
-  // TODO: case별 error handling 필요
+  // TODO: case별 error handling 필요한 경우 추가
   try {
     if (friend) {
       const addFriend = { $push: { friends: friend } };
