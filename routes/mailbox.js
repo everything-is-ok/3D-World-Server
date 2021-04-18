@@ -1,7 +1,7 @@
 const router = require("express").Router();
 
-const roomControllers = require("../controllers/room.controller");
+const mailboxController = require("../controllers/mailbox.controller");
 
-router.get("/", roomControllers.getRoom);
+router.get("/", mailboxController.getMailbox);
 
 module.exports = router;

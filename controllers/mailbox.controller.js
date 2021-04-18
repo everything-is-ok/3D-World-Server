@@ -10,4 +10,4 @@ function getMailbox(req, res) {
   // error handle
 }
 
-exports.getRoom = getMailbox;
+exports.getMailbox = getMailbox;
