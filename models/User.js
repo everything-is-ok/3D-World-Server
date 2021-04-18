@@ -7,13 +7,13 @@ const defaultPhotoURL = "https://cdn.pixabay.com/photo/2018/04/18/18/56/user-333
 const defaultMusicURL = "https://www.youtube.com/watch?v=MzPjJQIQ0-s";
 
 const userSchema = new mongoose.Schema({
-  nickname: {
+  name: {
     type: String,
-    unique: true,
-    required: [true, "nickname is required"],
+    required: [true, "name is required"],
   },
   email: {
     type: String,
+    index: true,
     unique: true,
     required: [true, "email is required"],
   },
@@ -32,11 +32,11 @@ const userSchema = new mongoose.Schema({
     default: "자기소개를 작성하세요.",
     maxlength: 80,
   },
-  photo: {
+  photoURL: {
     type: String,
     default: defaultPhotoURL,
   },
-  music: {
+  musicURL: {
     type: String,
     default: defaultMusicURL,
   },
