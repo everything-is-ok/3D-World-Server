@@ -4,7 +4,7 @@ function getMailbox(req, res) {
   res.status(200).json({
     data: {
       // data
-    }
+    },
   });
 
   // error handle

@@ -6,7 +6,9 @@
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
-    "dev": "NODE_ENV=development nodemon ./bin/www"
+    "client": "cd .. && cd client && npm start",
+    "dev": "NODE_ENV=development nodemon ./bin/www",
+    "app": "concurrently \"npm run client\" \"npm run dev\""
   },
   "dependencies": {
     "cookie-parser": "~1.4.4",
