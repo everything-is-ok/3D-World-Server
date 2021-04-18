@@ -16,7 +16,6 @@ const socket = require("./configs/socket");
 const app = express();
 const server = http.createServer(app);
 
-// NOTE: logger가 맨 위에 있어야 할것 같아서 그렇게 배치함, 확인 필요합니다.
 app.use(logger("dev"));
 app.use(cors());
 app.use(cookieParser());
