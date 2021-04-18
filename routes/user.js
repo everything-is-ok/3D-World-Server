@@ -6,6 +6,7 @@ const deserialize = require("../middlewares/deserialize");
 // TODO: rename
 router.post("/", userController.postLogin);
 router.get("/", deserialize, userController.getUserByToken);
+router.patch("/", deserialize, userController.updateUser);
 router.delete("/", deserialize, userController.deleteUser);
 
 router.get("/:id", userController.getUserById);

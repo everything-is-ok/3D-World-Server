@@ -40,6 +40,51 @@ async function getUserByToken(req, res, next) {
   res.json({ ok: true, data: user });
 }
 
+// TODO: req.body의 data validation 필요
+async function updateUser(req, res, next) {
+  const { _id } = req.user;
+  const {
+    name,
+    description,
+    photoURL,
+    musicURL,
+    friend,
+  } = req.body;
+  let newUser = {};
+
+  if (!req.user) {
+    next(createError(401, "authorization is invalid"));
+    return;
+  }
+
+  // TODO: case별 error handling 필요
+  try {
+    if (friend) {
+      const addFriend = { $push: { friends: friend } };
+
+      newUser = await User.findByIdAndUpdate(_id, addFriend, { new: true });
+
+      res.json({ ok: true, data: newUser });
+      return;
+    }
+
+    const updateInfo = {
+      $set: {
+        name,
+        description,
+        photoURL,
+        musicURL,
+      },
+    };
+
+    newUser = await User.findByIdAndUpdate(_id, updateInfo, { new: true });
+
+    res.json({ ok: true, data: newUser });
+  } catch (err) {
+    next(err);
+  }
+}
+
 async function deleteUser(req, res, next) {
   const { user } = req;
 
@@ -82,5 +127,6 @@ async function getUserById(req, res, next) {
 
 exports.postLogin = postLogin;
 exports.getUserByToken = getUserByToken;
+exports.updateUser = updateUser;
 exports.deleteUser = deleteUser;
 exports.getUserById = getUserById;
