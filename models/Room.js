@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-// TODO: add schema
+const Mailbox = require("./Mailbox");
 
 const roomSchema = new mongoose.Schema({
   items: [
@@ -27,7 +27,6 @@ const roomSchema = new mongoose.Schema({
   mailBoxId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "MailBox",
-    required: [true, "mailBoxId is required."],
   },
   ownerId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -40,6 +39,16 @@ const roomSchema = new mongoose.Schema({
   },
 }, {
   timestamps: true,
+});
+
+// eslint-disable-next-line prefer-arrow-callback
+roomSchema.pre(/^save/, async function (next) {
+  if (!this.mailBoxId) {
+    const mailbox = await Mailbox.create({});
+    this.mailBoxId = mailbox._id;
+  }
+
+  next();
 });
 
 module.exports = mongoose.model("Room", roomSchema);
