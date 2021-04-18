@@ -24,9 +24,9 @@ const roomSchema = new mongoose.Schema({
       },
     },
   ],
-  mailBoxId: {
+  mailboxId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "MailBox",
+    ref: "Mailbox",
   },
   ownerId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -43,9 +43,9 @@ const roomSchema = new mongoose.Schema({
 
 // eslint-disable-next-line prefer-arrow-callback
 roomSchema.pre(/^save/, async function (next) {
-  if (!this.mailBoxId) {
+  if (!this.mailboxId) {
     const mailbox = await Mailbox.create({});
-    this.mailBoxId = mailbox._id;
+    this.mailboxId = mailbox._id;
   }
 
   next();
