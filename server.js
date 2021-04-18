@@ -37,12 +37,12 @@ socket.io.listen(server, {
 app.use("/", router);
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use((req, res, next) => {
   next(createError(404));
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use((err, req, res, next) => {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get("env") === "development" ? err : {};
@@ -50,7 +50,7 @@ app.use(function(err, req, res, next) {
   // render the error page
   res.status(err.status || 500);
   // TODO: render 지우고 클라이언트로 에러 보내기.
-  res.render("error");
+  res.json({ error: { message: "error" } });
 });
 
 // NOTE: 현재 파일이름을 app, index, server 뭐가 나을지...? exports 하는게 app이라.
