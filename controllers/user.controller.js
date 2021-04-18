@@ -13,7 +13,7 @@ async function postLogin(req, res, next) {
     // TODO: await 필요한가
     await User.findOrCreate({ email }, { name }, (err, user) => {
       if (err) {
-        next(createError(500, "Internal server error."));
+        next(err);
         return;
       }
 
