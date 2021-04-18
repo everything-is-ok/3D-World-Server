@@ -6,13 +6,15 @@ const mongoose = require("mongoose");
 const User = require("../models/User");
 
 async function postLogin(req, res, next) {
-  // data 어떻게 받을지, 그리고 이름 필드 필요.(닉네임 뿐 아니라)
+  // NOTE data 어떻게 받을지, 그리고 이름 필드 필요.(닉네임 뿐 아니라)
   const { email, name } = req.body;
 
   try {
-    await User.findOrCreate({ email }, { name }, (error, user) => {
-      if (error) {
-        throw new Error();
+    // TODO: await 필요한가
+    await User.findOrCreate({ email }, { name }, (err, user) => {
+      if (err) {
+        next(createError(500, "Internal server error."));
+        return;
       }
 
       const accessToken = jwt.sign({
@@ -20,12 +22,10 @@ async function postLogin(req, res, next) {
       }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "3h" });
 
       res.cookie("authorization", `bearer ${accessToken}`);
-      res.json({ data: user });
+      res.json({ ok: true, data: user });
     });
-  } catch (error) {
-    // NOTE: next를 이용해서 error handler middleware에서 처리해야하는 것 아닌가요?
-    // TODO: error specify! : if found error on model or jwt
-    res.status(500).json({ error: { message: "Internal Server Error" } });
+  } catch (err) {
+    next(err);
   }
 }
 
@@ -49,14 +49,14 @@ async function getUserByToken(req, res, next) {
       return;
     }
 
-    res.json({ data: user });
-  } catch (error) {
-    if (error instanceof jwt.JsonWebTokenError) {
+    res.json({ ok: true, data: user });
+  } catch (err) {
+    if (err instanceof jwt.JsonWebTokenError) {
       next(createError(401, "authorization is not correct."));
       return;
     }
 
-    next(error);
+    next(err);
   }
 }
 
@@ -67,9 +67,9 @@ async function deleteUser(req, res, next) {
   try {
     const user = await User.deleteOne({ _id });
 
-    res.json({ data: user });
-  } catch (error) {
-    next(error);
+    res.json({ ok: true, data: user });
+  } catch (err) {
+    next(err);
   }
 }
 
@@ -91,9 +91,9 @@ async function getUserById(req, res, next) {
       return;
     }
 
-    res.json({ data: user });
-  } catch (error) {
-    next(error);
+    res.json({ ok: true, data: user });
+  } catch (err) {
+    next(err);
   }
 }
 
