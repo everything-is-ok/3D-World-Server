@@ -5,28 +5,22 @@ const mongoose = require("mongoose");
 
 const User = require("../models/User");
 
-async function postLogin(req, res, next) {
-  // NOTE data 어떻게 받을지, 그리고 이름 필드 필요.(닉네임 뿐 아니라)
-  const { email, name } = req.body;
+function postLogin(req, res, next) {
+  const { email, name, photoURL } = req.body;
 
-  try {
-    // TODO: await 필요한가
-    await User.findOrCreate({ email }, { name }, (err, user) => {
-      if (err) {
-        next(err);
-        return;
-      }
+  User.findOrCreate({ email }, { name, photoURL }, async (err, user) => {
+    if (err) {
+      next(err);
+      return;
+    }
 
-      const accessToken = jwt.sign({
-        id: user._id,
-      }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "3h" });
+    const accessToken = jwt.sign({
+      id: user._id,
+    }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "3h" });
 
-      res.cookie("authorization", `bearer ${accessToken}`);
-      res.json({ ok: true, data: user });
-    });
-  } catch (err) {
-    next(err);
-  }
+    res.cookie("authorization", `bearer ${accessToken}`);
+    res.json({ ok: true, data: user });
+  });
 }
 
 async function getUserByToken(req, res, next) {
