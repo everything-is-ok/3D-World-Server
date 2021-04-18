@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const findOrCreate = require("mongoose-findorcreate");
+const findOrCreate = require("mongoose-find-or-create");
 
 // TODO: add schema
 // TODO: 디폴트 이미지 어쩔지 생각해보기
@@ -10,6 +10,9 @@ const userSchema = new mongoose.Schema({
     type: String,
     unique: true,
     required: [true, "email is required"],
+  },
+  name: {
+    type: String,
   },
   photoURL: {
     type: String,
