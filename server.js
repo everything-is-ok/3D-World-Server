@@ -52,7 +52,7 @@ app.use((err, req, res, next) => {
   // render the error page
   res.status(err.status || 500);
   // TODO: render 지우고 클라이언트로 에러 보내기.
-  res.render("error");
+  res.json({ error: { message: "error" } });
 });
 
 // NOTE: 현재 파일이름을 app, index, server 뭐가 나을지...? exports 하는게 app이라.
