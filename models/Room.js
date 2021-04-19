@@ -41,7 +41,6 @@ const roomSchema = new mongoose.Schema({
   timestamps: true,
 });
 
-// eslint-disable-next-line prefer-arrow-callback
 roomSchema.pre(/^save/, async function (next) {
   if (!this.mailboxId) {
     const mailbox = await Mailbox.create({});
