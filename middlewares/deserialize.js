@@ -16,7 +16,10 @@ async function deserialize(req, res, next) {
 
   try {
     const { id } = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-    const user = await User.findById(id)?.lean();
+    const user = await User
+      .findById(id)
+      ?.populate("friends")
+      .lean();
 
     if (!user) {
       req.user = null;
