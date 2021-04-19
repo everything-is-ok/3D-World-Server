@@ -18,8 +18,10 @@ function postLogin(req, res, next) {
       id: user._id,
     }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "3h" });
 
+    const populated = await user.populate("friends").execPopulate();
+
     res.cookie("authorization", `bearer ${accessToken}`);
-    res.json({ ok: true, data: user });
+    res.json({ ok: true, data: populated });
   });
 }
 
