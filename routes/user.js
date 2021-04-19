@@ -11,4 +11,7 @@ router.delete("/", deserialize, userController.deleteUser);
 
 router.get("/:id", userController.getUserById);
 
+// TODO: rename
+router.post("/", userController.postLogin);
+
 module.exports = router;
