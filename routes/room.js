@@ -1,9 +1,10 @@
-const express = require("express");
+const router = require("express").Router();
 
 const roomControllers = require("../controllers/room.controller");
+const deserialize = require("../middlewares/deserialize");
 
-const router = express.Router();
+router.get("/", deserialize, roomControllers.getRoomByToken);
 
-router.get("/", roomControllers.getRoom);
+router.get("/:id", roomControllers.getRoomById);
 
 module.exports = router;
