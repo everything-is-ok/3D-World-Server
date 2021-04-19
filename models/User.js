@@ -48,7 +48,6 @@ const userSchema = new mongoose.Schema({
 
 userSchema.plugin(findOrCreate);
 
-// eslint-disable-next-line prefer-arrow-callback
 userSchema.pre(/^save/, async function (next) {
   if (!this.roomId) {
     const room = await Room.create({
