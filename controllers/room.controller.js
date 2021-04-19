@@ -44,15 +44,15 @@ async function getRoomById(req, res, next) {
 }
 
 async function getRoomByUserId(req, res, next) {
-  const { id } = req.params;
+  const { userId } = req.params;
 
-  if (!(mongoose.Types.ObjectId.isValid(id))) {
+  if (!(mongoose.Types.ObjectId.isValid(userId))) {
     next(createError(400, "id of params is invalid"));
     return;
   }
 
   try {
-    const room = await Room.findOne({ ownerId: id }).lean();
+    const room = await Room.findOne({ ownerId: userId }).lean();
 
     if (!room) {
       next(createError(400, "id of params is invalid"));
