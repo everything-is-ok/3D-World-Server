@@ -18,7 +18,7 @@ async function getMailList(req, res, next) {
 
     res.json({
       ok: true,
-      data: mailboxData.mailboxId,
+      data: mailboxData.mailboxId.mails,
     });
   } catch (err) {
     next(err);
@@ -50,16 +50,12 @@ async function deleteMailList(req, res, next) {
 
     res.json({
       ok: true,
-      data: deleteMailResult,
+      data: deleteMailResult.mails,
     });
   } catch (err) {
     next(err);
   }
 }
-
-// async function readMail(req, res, next) {
-
-// }
 
 async function postMail(req, res, next) {
   const { _id: sender } = req.user;
