@@ -1,7 +1,12 @@
 const router = require("express").Router();
 
-const mailboxController = require("../controllers/mailbox.controller");
+const mailboxControllers = require("../controllers/mailbox.controller");
+const deserialize = require("../middlewares/deserialize");
 
-router.get("/", mailboxController.getMailbox);
+router.get("/", deserialize, mailboxControllers.getMailList);
+router.delete("/", deserialize, mailboxControllers.deleteMailList);
+// router.patch("/read", mailboxControllers.readMail);
+router.post("/mail/:id", deserialize, mailboxControllers.postMail);
+// router.delete("/mail/:id", mailboxControllers.deleteMail);
 
 module.exports = router;
