@@ -123,14 +123,8 @@ async function getUserById(req, res, next) {
   }
 }
 
-function deleteToken(req, res, next) {
-  res.clearCookie("authorization");
-  res.json({ ok: true, data: null });
-}
-
 exports.postLogin = postLogin;
 exports.getUserByToken = getUserByToken;
 exports.updateUser = updateUser;
 exports.deleteUser = deleteUser;
 exports.getUserById = getUserById;
-exports.deleteToken = deleteToken;
