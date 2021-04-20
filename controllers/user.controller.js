@@ -59,8 +59,9 @@ async function updateUser(req, res, next) {
       const addFriend = { $push: { friends: friend } };
 
       newUser = await User.findByIdAndUpdate(_id, addFriend, { new: true });
+      const populatedUser = await newUser.populate("friends").execPopulate();
 
-      res.json({ ok: true, data: newUser });
+      res.json({ ok: true, data: populatedUser });
       return;
     }
 
