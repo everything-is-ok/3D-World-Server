@@ -125,7 +125,7 @@ async function getUserById(req, res, next) {
 
 function deleteToken(req, res, next) {
   res.clearCookie("authorization");
-  res.json({ ok: true });
+  res.json({ ok: true, data: null });
 }
 
 exports.postLogin = postLogin;
