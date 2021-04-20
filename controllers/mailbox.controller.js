@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
 const createError = require("http-errors");
+const mongoose = require("mongoose");
 
 const Mailbox = require("../models/Mailbox");
 const Room = require("../models/Room");

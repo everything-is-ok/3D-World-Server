@@ -1,5 +1,5 @@
-const jwt = require("jsonwebtoken");
 const createError = require("http-errors");
+const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 // TODO: req.user가 어떤식으로 들어오는지 확인 필요
 
@@ -123,8 +123,14 @@ async function getUserById(req, res, next) {
   }
 }
 
+function deleteToken(req, res, next) {
+  res.clearCookie("authorization");
+  res.json({ ok: true });
+}
+
 exports.postLogin = postLogin;
 exports.getUserByToken = getUserByToken;
 exports.updateUser = updateUser;
 exports.deleteUser = deleteUser;
 exports.getUserById = getUserById;
+exports.deleteToken = deleteToken;
