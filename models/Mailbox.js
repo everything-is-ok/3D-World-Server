@@ -18,6 +18,7 @@ const mailboxSchema = new mongoose.Schema({
         enum: ["NEW", "READ"],
         default: "NEW",
       },
+      date: { type: Date, default: Date.now },
     },
   ],
 }, {
