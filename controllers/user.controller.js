@@ -75,8 +75,9 @@ async function updateUser(req, res, next) {
     };
 
     newUser = await User.findByIdAndUpdate(_id, updateInfo, { new: true });
+    const populatedUser = await newUser.populate("friends").execPopulate();
 
-    res.json({ ok: true, data: newUser });
+    res.json({ ok: true, data: populatedUser });
   } catch (err) {
     next(err);
   }
