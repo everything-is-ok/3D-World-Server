@@ -5,20 +5,29 @@ const mongoose = require("mongoose");
 const mailboxSchema = new mongoose.Schema({
   mails: [
     {
-      sender: {
-        type: mongoose.Schema.Types.ObjectId,
-        required: [true, "sender is required."],
-      },
-      content: {
-        type: String,
-        required: [true, "content is required."],
-      },
-      status: {
-        type: String,
-        enum: ["NEW", "READ"],
-        default: "NEW",
-      },
-      date: { type: Date, default: Date.now },
+      type: new mongoose.Schema(
+        {
+          sender: {
+            type: mongoose.Schema.Types.ObjectId,
+            required: [true, "sender is required."],
+          },
+          content: {
+            type: String,
+            required: [true, "content is required."],
+          },
+          status: {
+            type: String,
+            enum: ["NEW", "READ"],
+            default: "NEW",
+          },
+        },
+        {
+          timestamps: true,
+        },
+      ),
+    },
+    {
+      timestamps: true,
     },
   ],
 }, {
