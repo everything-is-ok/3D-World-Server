@@ -1,10 +1,15 @@
-const express = require("express");
+const router = require("express").Router();
 
 const userController = require("../controllers/user.controller");
+const deserialize = require("../middlewares/deserialize");
 
-const router = express.Router();
+// TODO: rename
+router.post("/", userController.postLogin);
+router.get("/", deserialize, userController.getUserByToken);
+router.patch("/", deserialize, userController.updateUser);
+router.delete("/", deserialize, userController.deleteUser);
 
-router.get("/", userController.getUser);
+router.get("/:id", userController.getUserById);
 
 // TODO: rename
 router.post("/", userController.postLogin);

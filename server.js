@@ -1,9 +1,8 @@
-if (process.env.NODE_ENV) {
-  // TODO isproduction 이나 isDev 등 사용시, 변수로 할당해도 좋을 듯
-  require("dotenv").config();
-}
+// NOTE: 상황에 따라 env.NODE_ENV 설정을 넣을 수도 있다.(ex. isProduction)
+require("dotenv").config();
 
 const express = require("express");
+const http = require("http");
 const path = require("path");
 const cors = require("cors");
 const logger = require("morgan");
@@ -12,14 +11,13 @@ const cookieParser = require("cookie-parser");
 
 const router = require("./routes/index");
 const db = require("./configs/db");
-const socket = require("./configs/socket");
+const socketIo = require("./configs/socket");
 
 const app = express();
-const server = require("http").createServer(app);
+const server = http.createServer(app);
 
-// NOTE: logger가 맨 위에 있어야 할것 같아서 그렇게 배치함, 확인 필요합니다.
 app.use(logger("dev"));
-app.use(cors());
+app.use(cors({ origin: true, credentials: true }));
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -27,8 +25,7 @@ app.use(express.static(path.join(__dirname, "public")));
 
 db.init();
 
-// NOTE: old version : socket.io.attach(server);
-socket.io.listen(server, {
+socketIo.listen(server, {
   cors: {
     origin: [process.env.CLIENT_URL],
   },
@@ -37,20 +34,18 @@ socket.io.listen(server, {
 app.use("/", router);
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use((req, res, next) => {
   next(createError(404));
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use((err, req, res, next) => {
+  // TODO: 분기를 활용하여 에러핸들링
   // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get("env") === "development" ? err : {};
+  // req.app.get("env") === "development" ? err : {};
 
-  // render the error page
   res.status(err.status || 500);
-  // TODO: render 지우고 클라이언트로 에러 보내기.
-  res.render("error");
+  res.json({ ok: false, error: { message: err.message } });
 });
 
 // NOTE: 현재 파일이름을 app, index, server 뭐가 나을지...? exports 하는게 app이라.
