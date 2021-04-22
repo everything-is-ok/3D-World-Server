@@ -1,9 +1,5 @@
-const findOrCreate = require("mongoose-find-or-create");
 const mongoose = require("mongoose");
-<<<<<<< HEAD
 const findOrCreate = require("mongoose-find-or-create");
-=======
->>>>>>> 9213a70e3a0031e359c9fc4b93ea6687c57f8a87
 
 const Room = require("./Room");
 
