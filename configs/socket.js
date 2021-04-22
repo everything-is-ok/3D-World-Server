@@ -49,18 +49,27 @@ socketIo.on("connection", (socket) => {
 
   // NOTE: World socket
 
-  socket.on("world", ({ user, position }) => {
-    const greeting = `🌐 ${user.name} joined to the world 🌐`;
+  socket.on("world", ({ user, position, direction }) => {
     socket.join("world1");
 
     socket.broadcast.to("world1").emit("worldConnection", {
       user,
       position,
-      greeting,
+      direction,
     });
 
-    socket.on("changePosition", ({ id, newPosition }) => {
-      socket.broadcast.to("world1").emit(`receive_position_${id}`, { newPosition });
+    socket.broadcast.to("world1").emit("newUser");
+
+    socket.on("changePosition", ({ id, newPosition, newDirection }) => {
+      socket.broadcast.to("world1").emit(`receive_position_${id}`, { newPosition, newDirection });
+    });
+
+    socket.on("sendPosition", ({ user: oldUser, position: oldUserPosition, direction: oldUserDirection }) => {
+      socket.broadcast.to("world1").emit("worldConnection", {
+        user: oldUser,
+        position: oldUserPosition,
+        direction: oldUserDirection,
+      });
     });
   });
 });
