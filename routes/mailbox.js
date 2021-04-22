@@ -1,9 +1,12 @@
-const express = require("express");
+const router = require("express").Router();
 
-const roomControllers = require("../controllers/room.controller");
+const mailboxControllers = require("../controllers/mailbox.controller");
+const deserialize = require("../middlewares/deserialize");
 
-const router = express.Router();
-
-router.get("/", roomControllers.getRoom);
+router.get("/", deserialize, mailboxControllers.getMailList);
+router.delete("/", deserialize, mailboxControllers.deleteMailList);
+router.patch("/read", deserialize, mailboxControllers.readMail);
+router.post("/mail/:id", deserialize, mailboxControllers.postMail);
+router.delete("/mail/:id", deserialize, mailboxControllers.deleteMail);
 
 module.exports = router;

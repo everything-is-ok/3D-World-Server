@@ -1,10 +1,8 @@
-const express = require("express");
+const router = require("express").Router();
 
 const room = require("./room");
 const user = require("./user");
 const mailbox = require("./mailbox");
-
-const router = express.Router();
 
 router.use("/room", room);
 router.use("/user", user);
