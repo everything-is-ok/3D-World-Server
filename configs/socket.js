@@ -46,8 +46,23 @@ socketIo.on("connection", (socket) => {
       console.log("From disconnetion, current opened room list", openedRooms);
     });
   });
+
+  // NOTE: World socket
+
+  socket.on("world", ({ user, position }) => {
+    const greeting = `🌐 ${user.name} joined to the world 🌐`;
+    socket.join("world1");
+
+    socket.broadcast.to("world1").emit("worldConnection", {
+      user,
+      position,
+      greeting,
+    });
+
+    socket.on("changePosition", ({ id, newPosition }) => {
+      socket.broadcast.to("world1").emit(`receive_position_${id}`, { newPosition });
+    });
+  });
 });
 
 module.exports = socketIo;
-
-// TODO: client에서 쏠 때 잘 되는지 실험 필요 & config에 있어야하는지 socket 폴더 따로 빼야하는지 고민
