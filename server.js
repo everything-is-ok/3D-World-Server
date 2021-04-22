@@ -11,7 +11,7 @@ const cookieParser = require("cookie-parser");
 
 const router = require("./routes/index");
 const db = require("./configs/db");
-const socket = require("./configs/socket");
+const socketIo = require("./configs/socket");
 
 const app = express();
 const server = http.createServer(app);
@@ -25,7 +25,7 @@ app.use(express.static(path.join(__dirname, "public")));
 
 db.init();
 
-socket.io.listen(server, {
+socketIo.listen(server, {
   cors: {
     origin: [process.env.CLIENT_URL],
   },
