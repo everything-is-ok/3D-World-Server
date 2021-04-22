@@ -123,8 +123,25 @@ async function getUserById(req, res, next) {
   }
 }
 
+// TODO: ADD error handle
+async function getRandomUserIds(req, res, next) {
+  User.count(4).exec((err, count) => {
+    // Get a random entry
+    const random = Math.floor(Math.random() * count);
+    // Again query all users but only fetch one offset by our random #
+    User
+      .findOne()
+      .skip(random)
+      .exec((error, result) => {
+        // Tada! random user
+        res.json({ ok: true, data: result });
+      });
+  });
+}
+
 exports.postLogin = postLogin;
 exports.getUserByToken = getUserByToken;
 exports.updateUser = updateUser;
 exports.deleteUser = deleteUser;
 exports.getUserById = getUserById;
+exports.getRandomUserIds = getRandomUserIds;
