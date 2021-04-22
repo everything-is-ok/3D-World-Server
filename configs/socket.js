@@ -6,44 +6,57 @@ socketIo.on("connection", (socket) => {
   console.log("A user connected to socket");
 
   socket.on("room", ({ user, roomId }) => {
-    console.log(`${user} user join ${roomId}`);
+    console.log(`${user.name} user join ${roomId}`);
 
     // NOTE: socket.on("room")의 user, roomId와 closure가 형성되어있기때문에, 별도의 룸 관리가 없어도 될 듯
     // TODO: 사용하지 않는다면 추후 삭제
     openedRooms[roomId]
-      ? openedRooms[roomId][socket.id] = user
-      : openedRooms[roomId] = { [socket.id]: user };
+      ? openedRooms[roomId][user.id] = { name: user.name, socketId: socket.id }
+      : openedRooms[roomId] = { [user.id]: { name: user.name, socketId: socket.id } };
 
     console.log("From join room, current opened room list", openedRooms);
-
-    socket.join(roomId);
-    socket.broadcast
-      .to(roomId)
-      .emit("room", { user });
 
     socket.on("chat", ({ message }) => {
       socket.broadcast
         .to(roomId)
-        .emit("chat", { user, message });
+        .emit("chat", { user: user.name, message });
     });
 
     socket.on("move", ({ position, direction }) => {
-      console.log(`name: ${user}, position: ${position}, direction: ${direction}`);
+      console.log(`name: ${user.name}, position: ${position}, direction: ${direction}`);
       socket.broadcast
         .to(roomId)
         .emit("move", { user, position, direction });
     });
 
+    socket.on("participants", ({ listener, posInfo }) => {
+      console.log(listener);
+      socketIo.to(openedRooms[roomId][listener].socketId).emit("participants", { ...posInfo, socketId: socket.id });
+    });
+
+    socket.join(roomId);
+    socket.broadcast
+      .to(roomId)
+      .emit("room", { ...user, socketId: socket.id });
+
     socket.on("disconnect", () => {
-      console.log(`A ${user}user disconnected from socket`);
+      console.log(`A ${user.name}user disconnected from socket`);
+
+      socket.broadcast
+        .to(roomId)
+        .emit("leave", user);
 
       // NOTE: socket.on("room")의 user, roomId와 closure가 형성되어있기때문에, 별도의 룸 관리가 없어도 될 듯
       // TODO: 사용하지 않는다면 추후 삭제
-      Object.keys(openedRooms[roomId]).length === 1
-        ? delete openedRooms[roomId]
-        : delete openedRooms[roomId][socket.id];
+      try {
+        openedRooms[roomId] && Object.keys(openedRooms[roomId]).length === 1
+          ? delete openedRooms[roomId]
+          : delete openedRooms[roomId][user.id];
 
-      console.log("From disconnetion, current opened room list", openedRooms);
+        console.log("From disconnetion, current opened room list", openedRooms);
+      } catch (err) {
+        console.log(err);
+      }
     });
   });
 });
