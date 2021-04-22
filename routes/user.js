@@ -8,6 +8,8 @@ router.post("/", userController.postLogin);
 router.get("/", deserialize, userController.getUserByToken);
 router.patch("/", deserialize, userController.updateUser);
 router.delete("/", deserialize, userController.deleteUser);
+
 router.get("/:id", userController.getUserById);
+router.get("/random", userController.getRandomUserIds);
 
 module.exports = router;
