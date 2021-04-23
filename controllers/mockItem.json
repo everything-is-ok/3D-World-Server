@@ -1,0 +1,10 @@
+[
+  {
+    "itemName": "Chair",
+    "actions": []
+  },
+  {
+    "itemName": "JumpHuman",
+    "actions": ["jump", "walk"]
+  }
+]
