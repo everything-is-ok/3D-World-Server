@@ -76,6 +76,32 @@ socketIo.on("connection", (socket) => {
       socket.broadcast.to("world1").emit(`receive_position_${id}`, { newPosition });
     });
   });
+
+  // NOTE: World socket
+
+  socket.on("world", ({ user, position, direction }) => {
+    socket.join("world1");
+
+    socket.broadcast.to("world1").emit("worldConnection", {
+      user,
+      position,
+      direction,
+    });
+
+    socket.broadcast.to("world1").emit("newUser");
+
+    socket.on("changePosition", ({ id, newPosition, newDirection }) => {
+      socket.broadcast.to("world1").emit(`receive_position_${id}`, { newPosition, newDirection });
+    });
+
+    socket.on("sendPosition", ({ user: oldUser, position: oldUserPosition, direction: oldUserDirection }) => {
+      socket.broadcast.to("world1").emit("worldConnection", {
+        user: oldUser,
+        position: oldUserPosition,
+        direction: oldUserDirection,
+      });
+    });
+  });
 });
 
 module.exports = socketIo;
