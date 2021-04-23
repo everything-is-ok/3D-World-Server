@@ -34,6 +34,14 @@ socketIo.on("connection", (socket) => {
         .emit("move", { user, position, direction });
     });
 
+    // NOTE end Edit mode, database update
+    socket.on("update", ({ _id, position }) => {
+      console.log(`${_id}, ${position}`);
+      socket.broadcast
+        .to(roomId)
+        .emit("update", { _id, position });
+    });
+
     socket.on("disconnect", () => {
       console.log(`A ${user}user disconnected from socket`);
 

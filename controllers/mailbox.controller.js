@@ -112,9 +112,9 @@ async function readMail(req, res, next) {
   const { id } = req.query;
 
   try {
-    const updateResult = await Mailbox.findOne({ "mails._id": id });
+    const mailbox = await Mailbox.findOne({ "mails._id": id });
 
-    updateResult.mails.forEach((mail) => {
+    mailbox.mails.forEach((mail) => {
       if (mail._id.equals(id)) {
         mail.status = "READ";
       }
@@ -122,7 +122,7 @@ async function readMail(req, res, next) {
 
     res.json({
       ok: true,
-      data: updateResult,
+      data: mailbox,
     });
   } catch (err) {
     next(err);
