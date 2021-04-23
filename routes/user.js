@@ -9,7 +9,7 @@ router.get("/", deserialize, userController.getUserByToken);
 router.patch("/", deserialize, userController.updateUser);
 router.delete("/", deserialize, userController.deleteUser);
 
-router.get("/:id", userController.getUserById);
 router.get("/random", userController.getRandomUserIds);
+router.get("/:id", userController.getUserById);
 
 module.exports = router;

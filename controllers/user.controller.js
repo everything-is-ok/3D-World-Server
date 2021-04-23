@@ -125,18 +125,14 @@ async function getUserById(req, res, next) {
 
 // TODO: ADD error handle
 async function getRandomUserIds(req, res, next) {
-  User.count(4).exec((err, count) => {
-    // Get a random entry
-    const random = Math.floor(Math.random() * count);
-    // Again query all users but only fetch one offset by our random #
-    User
-      .findOne()
-      .skip(random)
-      .exec((error, result) => {
-        // Tada! random user
-        res.json({ ok: true, data: result });
-      });
-  });
+  const { size } = req.query;
+
+  try {
+    const users = await User.aggregate([{ $sample: { size: Number(size) } }]);
+    res.json({ ok: true, data: users });
+  } catch (err) {
+    next(err);
+  }
 }
 
 exports.postLogin = postLogin;
