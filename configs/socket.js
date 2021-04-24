@@ -16,6 +16,15 @@ socketIo.on("connection", (socket) => {
 
     console.log("From join room, current opened room list", openedRooms);
 
+    socket.join(roomId);
+    socket.broadcast
+      .to(roomId)
+      .emit("room", { ...user });
+
+    socket.broadcast
+      .to(roomId)
+      .emit("newUser", { socketId: socket.id });
+
     socket.on("chat", ({ message }) => {
       socket.broadcast
         .to(roomId)
@@ -29,6 +38,10 @@ socketIo.on("connection", (socket) => {
         .emit("move", { user, position, direction });
     });
 
+    socket.on("oldUser", ({ listener, posInfo }) => {
+      socketIo.to(listener).emit("setOldUser", { ...posInfo });
+    });
+
     // NOTE end Edit mode, database update
     socket.on("update", ({ _id, position }) => {
       console.log(`${_id}, ${position}`);
@@ -40,12 +53,6 @@ socketIo.on("connection", (socket) => {
     socket.on("participants", ({ listener, posInfo }) => {
       console.log(listener);
       socketIo.to(openedRooms[roomId][listener].socketId).emit("participants", { ...posInfo, socketId: socket.id });
-    });
-
-    socket.join(roomId);
-    socket.broadcast
-      .to(roomId)
-      .emit("room", { ...user, socketId: socket.id });
 
     socket.on("disconnect", () => {
       console.log(`A ${user.name}user disconnected from socket`);
@@ -65,23 +72,6 @@ socketIo.on("connection", (socket) => {
       } catch (err) {
         console.log(err);
       }
-    });
-  });
-
-  // NOTE: World socket
-
-  socket.on("world", ({ user, position }) => {
-    const greeting = `🌐 ${user.name} joined to the world 🌐`;
-    socket.join("world1");
-
-    socket.broadcast.to("world1").emit("worldConnection", {
-      user,
-      position,
-      greeting,
-    });
-
-    socket.on("changePosition", ({ id, newPosition }) => {
-      socket.broadcast.to("world1").emit(`receive_position_${id}`, { newPosition });
     });
   });
 
