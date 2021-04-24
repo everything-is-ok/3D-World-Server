@@ -29,6 +29,14 @@ socketIo.on("connection", (socket) => {
         .emit("move", { user, position, direction });
     });
 
+    // NOTE end Edit mode, database update
+    socket.on("update", ({ _id, position }) => {
+      console.log(`${_id}, ${position}`);
+      socket.broadcast
+        .to(roomId)
+        .emit("update", { _id, position });
+    });
+
     socket.on("participants", ({ listener, posInfo }) => {
       console.log(listener);
       socketIo.to(openedRooms[roomId][listener].socketId).emit("participants", { ...posInfo, socketId: socket.id });
