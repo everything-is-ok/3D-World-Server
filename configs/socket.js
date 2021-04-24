@@ -50,10 +50,6 @@ socketIo.on("connection", (socket) => {
         .emit("update", { _id, position });
     });
 
-    socket.on("participants", ({ listener, posInfo }) => {
-      console.log(listener);
-      socketIo.to(openedRooms[roomId][listener].socketId).emit("participants", { ...posInfo, socketId: socket.id });
-
     socket.on("disconnect", () => {
       console.log(`A ${user.name}user disconnected from socket`);
 
