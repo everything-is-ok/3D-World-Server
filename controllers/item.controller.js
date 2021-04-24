@@ -39,7 +39,7 @@ async function updatePosition(req, res, next) {
       { $set: { "items.$[elem].position": position } },
       {
         arrayFilters: [{
-          "elem._id": new mongoose.Types.ObjectId(id),
+          "elem._id": mongoose.Types.ObjectId(id),
         }],
         new: true,
       },
