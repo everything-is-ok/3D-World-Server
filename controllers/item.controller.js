@@ -65,7 +65,7 @@ async function insertItem(req, res, next) {
         $push: {
           items: {
             _id: "60817a4063620b071bb7a455",
-            position: [7 * 40, 24, 2 * 40],
+            position: [120, 24, 120],
           },
         },
       },
