@@ -16,6 +16,15 @@ socketIo.on("connection", (socket) => {
 
     console.log("From join room, current opened room list", openedRooms);
 
+    socket.join(roomId);
+    socket.broadcast
+      .to(roomId)
+      .emit("room", { ...user });
+
+    socket.broadcast
+      .to(roomId)
+      .emit("newUser", { socketId: socket.id });
+
     socket.on("chat", ({ message }) => {
       socket.broadcast
         .to(roomId)
@@ -29,15 +38,9 @@ socketIo.on("connection", (socket) => {
         .emit("move", { user, position, direction });
     });
 
-    socket.on("participants", ({ listener, posInfo }) => {
-      console.log(listener);
-      socketIo.to(openedRooms[roomId][listener].socketId).emit("participants", { ...posInfo, socketId: socket.id });
+    socket.on("oldUser", ({ listener, posInfo }) => {
+      socketIo.to(listener).emit("setOldUser", { ...posInfo });
     });
-
-    socket.join(roomId);
-    socket.broadcast
-      .to(roomId)
-      .emit("room", { ...user, socketId: socket.id });
 
     socket.on("disconnect", () => {
       console.log(`A ${user.name}user disconnected from socket`);
@@ -59,8 +62,49 @@ socketIo.on("connection", (socket) => {
       }
     });
   });
+
+  // NOTE: World socket
+
+  socket.on("world", ({ user, position }) => {
+    const greeting = `🌐 ${user.name} joined to the world 🌐`;
+    socket.join("world1");
+
+    socket.broadcast.to("world1").emit("worldConnection", {
+      user,
+      position,
+      greeting,
+    });
+
+    socket.on("changePosition", ({ id, newPosition }) => {
+      socket.broadcast.to("world1").emit(`receive_position_${id}`, { newPosition });
+    });
+  });
+
+  // NOTE: World socket
+
+  socket.on("world", ({ user, position, direction }) => {
+    socket.join("world1");
+
+    socket.broadcast.to("world1").emit("worldConnection", {
+      user,
+      position,
+      direction,
+    });
+
+    socket.broadcast.to("world1").emit("newUser");
+
+    socket.on("changePosition", ({ id, newPosition, newDirection }) => {
+      socket.broadcast.to("world1").emit(`receive_position_${id}`, { newPosition, newDirection });
+    });
+
+    socket.on("sendPosition", ({ user: oldUser, position: oldUserPosition, direction: oldUserDirection }) => {
+      socket.broadcast.to("world1").emit("worldConnection", {
+        user: oldUser,
+        position: oldUserPosition,
+        direction: oldUserDirection,
+      });
+    });
+  });
 });
 
 module.exports = socketIo;
-
-// TODO: client에서 쏠 때 잘 되는지 실험 필요 & config에 있어야하는지 socket 폴더 따로 빼야하는지 고민

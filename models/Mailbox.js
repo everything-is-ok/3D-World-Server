@@ -1,7 +1,5 @@
 const mongoose = require("mongoose");
 
-// TODO: add schema
-
 const mailboxSchema = new mongoose.Schema({
   mails: [
     {
