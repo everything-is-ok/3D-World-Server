@@ -109,20 +109,23 @@ async function deleteMail(req, res, next) {
 
 // NOTE update 메소드 확인 다시 해야함
 async function readMail(req, res, next) {
-  const { id } = req.query;
+  const { mailId } = req.body;
 
   try {
-    const updateResult = await Mailbox.findOne({ "mails._id": id });
-
-    updateResult.mails.forEach((mail) => {
-      if (mail._id.equals(id)) {
-        mail.status = "READ";
-      }
-    });
+    const mailbox = await Mailbox.findOneAndUpdate(
+      { "mails._id": mailId },
+      { $set: { "mails.$[elem].status": "READ" } },
+      {
+        arrayFilters: [{
+          "elem._id": mongoose.Types.ObjectId(mailId),
+        }],
+        new: true,
+      },
+    );
 
     res.json({
       ok: true,
-      data: updateResult,
+      data: mailbox,
     });
   } catch (err) {
     next(err);
