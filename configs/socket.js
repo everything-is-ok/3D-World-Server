@@ -93,6 +93,10 @@ socketIo.on("connection", (socket) => {
     socket.on("old user info", ({ listener, userInfo: oldUserInfo }) => {
       socketIo.to(listener).emit("old user info", oldUserInfo);
     });
+
+    socket.on("disconnect", () => {
+      socket.broadcast.to("world1").emit("leaveWorld", user);
+    });
   });
 });
 
