@@ -4,19 +4,24 @@ const mongoose = require("mongoose");
 // TODO: req.user가 어떤식으로 들어오는지 확인 필요
 
 const User = require("../models/User");
+const { validateName, validateAsyncEmail } = require("../utils/validation");
 
 async function postLogin(req, res, next) {
   try {
     const { email, photoURL } = req.body;
     let { name } = req.body;
 
+    await validateAsyncEmail(email);
+
+    const nameValidationResult = validateName(name);
+
+    if (nameValidationResult.error) {
+      name = "what is your name";
+    }
+
     let user = await User.findOne({ email });
 
     if (!user) {
-      if (name.match(/[^a-zA-Z]/g)) {
-        name = "What is your name";
-      }
-
       user = await User.create({ email, name, photoURL });
     }
 
@@ -31,6 +36,11 @@ async function postLogin(req, res, next) {
     res.cookie("authorization", `bearer ${accessToken}`);
     res.json({ ok: true, data: populated });
   } catch (err) {
+    if (err.details && err.details[0].type === "string.email") {
+      next(createError(400, "Invalid email."));
+      return;
+    }
+
     next(err);
   }
 }
@@ -50,12 +60,12 @@ async function getUserByToken(req, res, next) {
 async function updateUser(req, res, next) {
   const { _id } = req.user;
   const {
-    name,
     description,
     photoURL,
     musicURL,
     friend,
   } = req.body;
+  let { name } = req.body;
   let newUser = {};
 
   if (!req.user) {
@@ -73,6 +83,12 @@ async function updateUser(req, res, next) {
 
       res.json({ ok: true, data: populatedUser });
       return;
+    }
+
+    const nameValidationResult = validateName(name);
+
+    if (nameValidationResult.error) {
+      name = "alphabet or number name";
     }
 
     const updateInfo = {
@@ -139,6 +155,7 @@ async function getRandomUserIds(req, res, next) {
 
   try {
     const users = await User.aggregate([{ $sample: { size: Number(size) } }]);
+
     res.json({ ok: true, data: users });
   } catch (err) {
     next(err);
