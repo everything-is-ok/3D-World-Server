@@ -99,7 +99,7 @@ socketIo.on("connection", (socket) => {
     socket.on("disconnect", () => {
       socket.broadcast
         .to("world1")
-        .emit("leave World", userInfo);
+        .emit("leave world", userInfo);
     });
   });
 });
