@@ -84,10 +84,10 @@ socketIo.on("connection", (socket) => {
       .to("world1")
       .emit("new user socket id", { socketId: socket.id });
 
-    socket.on("changePosition", ({ id, newPosition, newDirection }) => {
+    socket.on("user movement", ({ id, newPosition, newDirection }) => {
       socket.broadcast
         .to("world1")
-        .emit(`receive_position_${id}`, { newPosition, newDirection });
+        .emit(`update movement:${id}`, { newPosition, newDirection });
     });
 
     socket.on("old user info", ({ listener, userInfo: oldUserInfo }) => {
