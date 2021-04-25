@@ -5,10 +5,6 @@ const itemSchema = new mongoose.Schema({
     type: String,
     required: [true, "itemName is required."],
   },
-  actions: {
-    type: Array,
-    default: [],
-  },
 }, {
   timestamps: true,
 });
