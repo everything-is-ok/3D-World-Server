@@ -7,11 +7,16 @@ const User = require("../models/User");
 
 async function postLogin(req, res, next) {
   try {
-    const { email, name, photoURL } = req.body;
+    const { email, photoURL } = req.body;
+    let { name } = req.body;
 
     let user = await User.findOne({ email });
 
     if (!user) {
+      if (name.match(/[^a-zA-Z]/g)) {
+        name = "What is your name";
+      }
+
       user = await User.create({ email, name, photoURL });
     }
 
