@@ -59,7 +59,7 @@ async function insertItem(req, res, next) {
   const { _id } = req.user;
 
   try {
-    await Room.findOneAndUpdate(
+    const room = await Room.findOneAndUpdate(
       { ownerId: _id },
       {
         $push: {
@@ -71,6 +71,11 @@ async function insertItem(req, res, next) {
       },
       { new: true },
     );
+
+    res.json({
+      ok: true,
+      data: room,
+    });
   } catch (err) {
     next(err);
   }
