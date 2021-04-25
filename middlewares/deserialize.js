@@ -22,10 +22,13 @@ async function deserialize(req, res, next) {
       ?.populate("friends")
       .lean();
 
-    if (decodedToken.exp - Date.now() < 60 * 60 * 1000) {
+    const isExpiredInOneHour = decodedToken.exp - Date.now() < 60 * 60 * 1000;
+
+    if (isExpiredInOneHour) {
       const accessToken = jwt.sign({
         id: decodedToken.id,
       }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "3h" });
+
       res.cookie("authorization", `bearer ${accessToken}`);
     }
 
