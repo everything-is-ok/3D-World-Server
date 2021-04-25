@@ -56,6 +56,11 @@ async function postMail(req, res, next) {
 async function readMail(req, res, next) {
   const { mailId } = req.body;
 
+  if (!(mongoose.Types.ObjectId.isValid(mailId))) {
+    next(createError(400, "id of params is invalid"));
+    return;
+  }
+
   try {
     const mailbox = await Mailbox.findOneAndUpdate(
       { "mails._id": mailId },
@@ -79,6 +84,11 @@ async function readMail(req, res, next) {
 
 async function deleteMail(req, res, next) {
   const { id } = req.params;
+
+  if (!(mongoose.Types.ObjectId.isValid(id))) {
+    next(createError(400, "id of params is invalid"));
+    return;
+  }
 
   try {
     const deleteResult = await Mailbox.updateOne(
@@ -106,6 +116,7 @@ async function deleteMailList(req, res, next) {
   }
 
   const { _id } = req.user;
+
   try {
     const mailboxData = await Room.findOne({ ownerId: _id }, "mailboxId");
     const { mailboxId } = mailboxData;
