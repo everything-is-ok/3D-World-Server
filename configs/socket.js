@@ -95,6 +95,10 @@ socketIo.on("connection", (socket) => {
         direction: oldUserDirection,
       });
     });
+
+    socket.on("disconnect", () => {
+      socket.broadcast.to("world1").emit("leaveWorld", user);
+    });
   });
 });
 
