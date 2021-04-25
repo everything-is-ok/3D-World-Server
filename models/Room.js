@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 
 const Mailbox = require("./Mailbox");
 
+// TODO 추후 rotation, isPlaced 안쓰면 삭제
 const roomSchema = new mongoose.Schema({
   items: [
     {
