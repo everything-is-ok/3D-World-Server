@@ -1,46 +1,34 @@
 const socketIo = require("socket.io")();
 
-const openedRooms = {};
-
 socketIo.on("connection", (socket) => {
-  console.log("A user connected to socket");
+  console.log("🔗A user connected to socket");
 
   socket.on("join room", ({ user, roomId }) => {
-    console.log(`${user.name} user join ${roomId}`);
-
-    // NOTE: socket.on("room")의 user, roomId와 closure가 형성되어있기때문에, 별도의 룸 관리가 없어도 될 듯
-    // TODO: 사용하지 않는다면 추후 삭제
-    openedRooms[roomId]
-      ? openedRooms[roomId][user.id] = { name: user.name, socketId: socket.id }
-      : openedRooms[roomId] = { [user.id]: { name: user.name, socketId: socket.id } };
-
-    console.log("From join room, current opened room list", openedRooms);
+    console.log(`🏚${user.name} user join ${roomId}`);
 
     socket.join(roomId);
     socket.broadcast
       .to(roomId)
       .emit("join room", { ...user });
 
-    // NOTE: 네이밍 규칙 조언 구해야함
     socket.broadcast
       .to(roomId)
       .emit("new user socket id", { socketId: socket.id });
 
-    socket.on("chat message", ({ message }) => {
-      socket.broadcast
-        .to(roomId)
-        .emit("chat message", { user: user.name, message });
-    });
-
     socket.on("user movement", ({ position, direction }) => {
-      console.log(`name: ${user.name}, position: ${position}, direction: ${direction}`);
       socket.broadcast
         .to(roomId)
         .emit("user movement", { user, position, direction });
     });
 
     socket.on("old user info", ({ listener, posInfo }) => {
-      socketIo.to(listener).emit("old user info", { ...posInfo });
+      socketIo.to(listener).emit("old user info", posInfo);
+    });
+
+    socket.on("chat message", ({ message }) => {
+      socket.broadcast
+        .to(roomId)
+        .emit("chat message", { user: user.name, message });
     });
 
     // NOTE end Edit mode, database update
@@ -57,18 +45,6 @@ socketIo.on("connection", (socket) => {
       socket.broadcast
         .to(roomId)
         .emit("leave room", user);
-
-      // NOTE: socket.on("room")의 user, roomId와 closure가 형성되어있기때문에, 별도의 룸 관리가 없어도 될 듯
-      // TODO: 사용하지 않는다면 추후 삭제
-      try {
-        openedRooms[roomId] && Object.keys(openedRooms[roomId]).length === 1
-          ? delete openedRooms[roomId]
-          : delete openedRooms[roomId][user.id];
-
-        console.log("From disconnetion, current opened room list", openedRooms);
-      } catch (err) {
-        console.log(err);
-      }
     });
   });
 
@@ -99,7 +75,7 @@ socketIo.on("connection", (socket) => {
     socket.on("disconnect", () => {
       socket.broadcast
         .to("world1")
-        .emit("leave World", userInfo);
+        .emit("leave world", userInfo);
     });
   });
 });

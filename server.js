@@ -44,6 +44,19 @@ app.use((err, req, res, next) => {
   // set locals, only providing error in development
   // req.app.get("env") === "development" ? err : {};
 
+  if (err.name === "ValidationError") {
+    const errors = Object.values(err.errors).map((el) => el.message);
+    const message = `Invalid input data. ${errors.join(". ")}`;
+
+    err.status = 400;
+    err.message = message;
+  }
+
+  if (err.code === 11000) {
+    err.status = 400;
+    err.message = "A email must be unique.";
+  }
+
   res.status(err.status || 500);
   res.json({ ok: false, error: { message: err.message } });
 });

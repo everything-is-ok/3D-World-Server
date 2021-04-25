@@ -5,24 +5,29 @@ const mongoose = require("mongoose");
 
 const User = require("../models/User");
 
-function postLogin(req, res, next) {
-  const { email, name, photoURL } = req.body;
+async function postLogin(req, res, next) {
+  try {
+    const { email, name, photoURL } = req.body;
 
-  User.findOrCreate({ email }, { name, photoURL }, async (err, user) => {
-    if (err) {
-      next(err);
-      return;
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      user = await User.create({ email, name, photoURL });
     }
 
-    const accessToken = jwt.sign({
-      id: user._id,
-    }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "3h" });
+    const accessToken = jwt.sign(
+      { id: user._id },
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: "3h" },
+    );
 
     const populated = await user.populate("friends").execPopulate();
 
     res.cookie("authorization", `bearer ${accessToken}`);
     res.json({ ok: true, data: populated });
-  });
+  } catch (err) {
+    next(err);
+  }
 }
 
 async function getUserByToken(req, res, next) {
