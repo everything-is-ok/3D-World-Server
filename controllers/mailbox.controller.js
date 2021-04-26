@@ -6,7 +6,7 @@ const Room = require("../models/Room");
 
 async function getMailList(req, res, next) {
   if (!req.user) {
-    next(createError(401, "authorization is invalid"));
+    next(createError(401, "Authorization is invalid"));
     return;
   }
 
@@ -31,7 +31,7 @@ async function postMail(req, res, next) {
   const { id } = req.params;
 
   if (!(mongoose.Types.ObjectId.isValid(id))) {
-    next(createError(400, "id of params is invalid"));
+    next(createError(404, "Not found"));
     return;
   }
 
