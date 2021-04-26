@@ -41,8 +41,9 @@ async function getItems(req, res, next) {
   const { _id } = req.user;
 
   try {
-    const items = await Room.findOne({ ownerId: _id }, "items").lean()
-      .populate("items");
+    const items = await Room.findOne({ ownerId: _id }, "items")
+      .populate("items")
+      .lean();
 
     res.json({
       ok: true,

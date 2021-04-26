@@ -47,6 +47,7 @@ async function deserialize(req, res, next) {
       return;
     }
 
+    console.log("💥 deserialize");
     next(err);
   }
 }
