@@ -7,7 +7,7 @@ async function updatePosition(req, res, next) {
   const { id, position } = req.body;
 
   if (!(mongoose.Types.ObjectId.isValid(id))) {
-    next(createError(400, "id of params is invalid"));
+    next(createError(404, "Not found"));
     return;
   }
 
@@ -35,7 +35,7 @@ async function updatePosition(req, res, next) {
 // NOTE 관리자용
 async function getItems(req, res, next) {
   if (!req.user) {
-    next(createError(401, "authorization is invalid"));
+    next(createError(401, "Authorization is invalid"));
     return;
   }
 
