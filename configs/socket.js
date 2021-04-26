@@ -33,6 +33,7 @@ socketIo.on("connection", (socket) => {
 
     // NOTE end Edit mode, database update
     socket.on("update", ({ _id, position }) => {
+      console.log(_id, position);
       socket.broadcast
         .to(roomId)
         .emit("update", { _id, position });
