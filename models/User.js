@@ -1,4 +1,3 @@
-const findOrCreate = require("mongoose-find-or-create");
 const mongoose = require("mongoose");
 
 const Room = require("./Room");
@@ -45,8 +44,6 @@ const userSchema = new mongoose.Schema({
 }, {
   timestamps: true,
 });
-
-userSchema.plugin(findOrCreate);
 
 userSchema.pre(/^save/, async function (next) {
   if (!this.roomId) {

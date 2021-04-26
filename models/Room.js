@@ -6,11 +6,10 @@ const Mailbox = require("./Mailbox");
 const roomSchema = new mongoose.Schema({
   items: [
     {
-      _id: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Item",
-        required: true,
-      },
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Item",
+      required: true,
+      index: true,
       position: {
         type: Array,
         default: [],

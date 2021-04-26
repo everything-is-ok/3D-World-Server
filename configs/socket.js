@@ -4,9 +4,8 @@ socketIo.on("connection", (socket) => {
   console.log("🔗A user connected to socket");
 
   socket.on("join room", ({ user, roomId }) => {
-    console.log(`🏚${user.name} user join ${roomId}`);
-
     socket.join(roomId);
+
     socket.broadcast
       .to(roomId)
       .emit("join room", { ...user });
@@ -39,8 +38,6 @@ socketIo.on("connection", (socket) => {
     });
 
     socket.on("disconnect", () => {
-      console.log(`A ${user.name}user disconnected from socket`);
-
       socket.broadcast
         .to(roomId)
         .emit("leave room", user);

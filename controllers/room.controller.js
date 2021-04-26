@@ -1,21 +1,26 @@
-const createError = require("http-errors");
 const mongoose = require("mongoose");
 
 const Room = require("../models/Room");
+const { createLoginError, createNotFoundError } = require("../utils/errors");
 
 async function getRoomByToken(req, res, next) {
   if (!req.user) {
-    next(createError(401, "authorization is invalid"));
+    next(createLoginError("Unauthorized user"));
     return;
   }
 
   const { roomId } = req.user;
 
   try {
-    const room = await Room.findById(roomId).lean();
+    const room = await Room.findById(roomId);
+    const populatedRoom = await room.populate("items")
+      .execPopulate();
 
-    res.json({ ok: true, data: room });
+    console.log(populatedRoom);
+
+    res.json({ ok: true, data: populatedRoom });
   } catch (err) {
+    console.log("💥 getRoomByToken");
     next(err);
   }
 }
@@ -24,20 +29,26 @@ async function getRoomByUserId(req, res, next) {
   const { userId } = req.params;
 
   if (!(mongoose.Types.ObjectId.isValid(userId))) {
-    next(createError(400, "id of params is invalid"));
+    next(createNotFoundError());
     return;
   }
 
   try {
-    const room = await Room.findOne({ ownerId: userId }).lean();
+    const room = await Room.findOne({ ownerId: userId });
 
     if (!room) {
-      next(createError(400, "id of params is invalid"));
+      next(createNotFoundError());
       return;
     }
 
-    res.json({ ok: true, data: room });
+    const populatedRoom = await room.populate("items")
+      .execPopulate();
+
+    console.log(populatedRoom);
+
+    res.json({ ok: true, data: populatedRoom });
   } catch (err) {
+    console.log("💥 getRoomByUserId");
     next(err);
   }
 }
