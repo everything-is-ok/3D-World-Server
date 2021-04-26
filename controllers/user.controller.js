@@ -36,10 +36,11 @@ async function postLogin(req, res, next) {
     res.json({ ok: true, data: populated });
   } catch (err) {
     if (err.details && err.details[0].type === "string.email") {
-      next(createError(400, "Invalid email."));
+      next(createError(400, "Email is invalid."));
       return;
     }
 
+    console.log("💥 postLogin");
     next(err);
   }
 }
@@ -48,7 +49,7 @@ async function getUserByToken(req, res, next) {
   const { user } = req;
 
   if (!user) {
-    next(createError(401, "user is not exist."));
+    next(createError(401, "Unauthorized user"));
     return;
   }
 
@@ -68,7 +69,7 @@ async function updateUser(req, res, next) {
   let newUser = {};
 
   if (!req.user) {
-    next(createError(401, "authorization is invalid"));
+    next(createError(401, "Unauthorized user"));
     return;
   }
 
@@ -104,6 +105,7 @@ async function updateUser(req, res, next) {
 
     res.json({ ok: true, data: populatedUser });
   } catch (err) {
+    console.log("💥 updateUser");
     next(err);
   }
 }
@@ -112,7 +114,7 @@ async function deleteUser(req, res, next) {
   const { user } = req;
 
   if (!user) {
-    next(createError(401, "authorization is invalid."));
+    next(createError(401, "Unauthorized user"));
     return;
   }
 
@@ -121,6 +123,7 @@ async function deleteUser(req, res, next) {
 
     res.json({ ok: true, data: user });
   } catch (err) {
+    console.log("💥 deleteUser");
     next(err);
   }
 }
@@ -129,7 +132,7 @@ async function getUserById(req, res, next) {
   const { id } = req.params;
 
   if (!(mongoose.Types.ObjectId.isValid(id))) {
-    next(createError(400, "id of param is invalid."));
+    next(createError(404, "Not found page"));
     return;
   }
 
@@ -144,6 +147,7 @@ async function getUserById(req, res, next) {
 
     res.json({ ok: true, data: user });
   } catch (err) {
+    console.log("💥 getUserById");
     next(err);
   }
 }
@@ -157,6 +161,7 @@ async function getRandomUserIds(req, res, next) {
 
     res.json({ ok: true, data: users });
   } catch (err) {
+    console.log("💥 getRandomUserIds");
     next(err);
   }
 }

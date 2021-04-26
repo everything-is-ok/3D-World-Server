@@ -22,6 +22,12 @@ async function deserialize(req, res, next) {
       ?.populate("friends")
       .lean();
 
+    if (!user) {
+      req.user = null;
+      next();
+      return;
+    }
+
     const isExpiredInOneHour = decodedToken.exp - Date.now() < 60 * 60 * 1000;
 
     if (isExpiredInOneHour) {
@@ -30,12 +36,6 @@ async function deserialize(req, res, next) {
       }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "3h" });
 
       res.cookie("authorization", `bearer ${accessToken}`);
-    }
-
-    if (!user) {
-      req.user = null;
-      next();
-      return;
     }
 
     req.user = user;
