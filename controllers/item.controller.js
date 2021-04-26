@@ -3,28 +3,6 @@ const mongoose = require("mongoose");
 
 const Room = require("../models/Room");
 
-// TODO 관리자용이라 추후 삭제가능
-async function getItems(req, res, next) {
-  if (!req.user) {
-    next(createError(401, "authorization is invalid"));
-    return;
-  }
-
-  const { _id } = req.user;
-
-  try {
-    const items = await Room.findOne({ ownerId: _id }, "items").lean()
-      .populate("items");
-
-    res.json({
-      ok: true,
-      data: items,
-    });
-  } catch (err) {
-    next(err);
-  }
-}
-
 async function updatePosition(req, res, next) {
   const { id, position } = req.body;
 
@@ -54,7 +32,29 @@ async function updatePosition(req, res, next) {
   }
 }
 
-// NOTE 샘플 저장용
+// NOTE 관리자용
+async function getItems(req, res, next) {
+  if (!req.user) {
+    next(createError(401, "authorization is invalid"));
+    return;
+  }
+
+  const { _id } = req.user;
+
+  try {
+    const items = await Room.findOne({ ownerId: _id }, "items").lean()
+      .populate("items");
+
+    res.json({
+      ok: true,
+      data: items,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+// NOTE 관리자용
 async function insertItem(req, res, next) {
   const { _id } = req.user;
 
