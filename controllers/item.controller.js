@@ -74,37 +74,6 @@ async function insertItem(req, res, next) {
     next(err);
   }
 }
-// async function insertItem(req, res, next) {
-//   if (!req.user) {
-//     next(createAuthenticationError());
-//     return;
-//   }
-
-//   const { _id } = req.user;
-
-//   try {
-//     const room = await Room.findOneAndUpdate(
-//       { ownerId: _id },
-//       {
-//         $push: {
-//           items: {
-//             _id: "60817a4063620b071bb7a455",
-//             position: [120, 24, 120],
-//           },
-//         },
-//       },
-//       { new: true },
-//     );
-
-//     res.json({
-//       ok: true,
-//       data: room,
-//     });
-//   } catch (err) {
-//     console.log("💥 insertItem");
-//     next(err);
-//   }
-// }
 
 exports.getItems = getItems;
 exports.updatePosition = updatePosition;
