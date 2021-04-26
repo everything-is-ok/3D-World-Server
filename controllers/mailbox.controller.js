@@ -93,14 +93,10 @@ async function deleteMail(req, res, next) {
   }
 
   try {
-    const deleteResult = await Mailbox.updateOne(
+    await Mailbox.updateOne(
       { "mails._id": id },
       { $pull: { mails: { _id: id } } },
     );
-
-    if (!deleteResult.nModified) {
-      next();
-    }
 
     res.json({
       ok: true,
