@@ -1,4 +1,3 @@
-const createError = require("http-errors");
 const mongoose = require("mongoose");
 
 const Mailbox = require("../models/Mailbox");
@@ -26,6 +25,7 @@ async function getMailList(req, res, next) {
       data: mailboxData.mailboxId,
     });
   } catch (err) {
+    console.log("💥 getMailList");
     next(err);
   }
 }
@@ -54,6 +54,7 @@ async function postMail(req, res, next) {
       data: mailbox,
     });
   } catch (err) {
+    console.log("💥 postMail");
     next(err);
   }
 }
@@ -69,13 +70,8 @@ async function readMail(req, res, next) {
   try {
     const mailbox = await Mailbox.findOneAndUpdate(
       { "mails._id": mailId },
-      { $set: { "mails.$[elem].status": "READ" } },
-      {
-        arrayFilters: [{
-          "elem._id": mongoose.Types.ObjectId(mailId),
-        }],
-        new: true,
-      },
+      { $set: { "mails.$.status": "READ" } },
+      { new: true },
     );
 
     res.json({
@@ -83,6 +79,7 @@ async function readMail(req, res, next) {
       data: mailbox,
     });
   } catch (err) {
+    console.log("💥 readMail");
     next(err);
   }
 }
@@ -110,6 +107,7 @@ async function deleteMail(req, res, next) {
       data: id,
     });
   } catch (err) {
+    console.log("💥 deleteMail");
     next(err);
   }
 }
@@ -143,6 +141,7 @@ async function deleteMailList(req, res, next) {
       data: deleteMailResult,
     });
   } catch (err) {
+    console.log("💥 deleteMailList");
     next(err);
   }
 }
