@@ -1,4 +1,3 @@
-const createError = require("http-errors");
 const mongoose = require("mongoose");
 
 const Mailbox = require("../models/Mailbox");
@@ -26,6 +25,7 @@ async function getMailList(req, res, next) {
       data: mailboxData.mailboxId,
     });
   } catch (err) {
+    console.log("💥 getMailList");
     next(err);
   }
 }
@@ -54,6 +54,7 @@ async function postMail(req, res, next) {
       data: mailbox,
     });
   } catch (err) {
+    console.log("💥 postMail");
     next(err);
   }
 }
@@ -83,6 +84,7 @@ async function readMail(req, res, next) {
       data: mailbox,
     });
   } catch (err) {
+    console.log("💥 readMail");
     next(err);
   }
 }
@@ -110,6 +112,7 @@ async function deleteMail(req, res, next) {
       data: id,
     });
   } catch (err) {
+    console.log("💥 deleteMail");
     next(err);
   }
 }
@@ -143,6 +146,7 @@ async function deleteMailList(req, res, next) {
       data: deleteMailResult,
     });
   } catch (err) {
+    console.log("💥 deleteMailList");
     next(err);
   }
 }

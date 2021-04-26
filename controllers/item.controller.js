@@ -1,13 +1,16 @@
-const createError = require("http-errors");
 const mongoose = require("mongoose");
 
 const Room = require("../models/Room");
+const {
+  createRequestError,
+  createAuthenticationError,
+} = require("../utils/errors");
 
 async function updatePosition(req, res, next) {
   const { id, position } = req.body;
 
   if (!(mongoose.Types.ObjectId.isValid(id))) {
-    next(createError(404, "Not found"));
+    next(createRequestError());
     return;
   }
 
@@ -28,6 +31,7 @@ async function updatePosition(req, res, next) {
       data: { id, position },
     });
   } catch (err) {
+    console.log("💥 updatePosition");
     next(err);
   }
 }
@@ -35,7 +39,7 @@ async function updatePosition(req, res, next) {
 // NOTE 관리자용
 async function getItems(req, res, next) {
   if (!req.user) {
-    next(createError(401, "Authorization is invalid"));
+    next(createAuthenticationError());
     return;
   }
 
@@ -50,12 +54,18 @@ async function getItems(req, res, next) {
       data: items,
     });
   } catch (err) {
+    console.log("💥 getItems");
     next(err);
   }
 }
 
 // NOTE 관리자용
 async function insertItem(req, res, next) {
+  if (!req.user) {
+    next(createAuthenticationError());
+    return;
+  }
+
   const { _id } = req.user;
 
   try {
@@ -77,6 +87,7 @@ async function insertItem(req, res, next) {
       data: room,
     });
   } catch (err) {
+    console.log("💥 insertItem");
     next(err);
   }
 }
