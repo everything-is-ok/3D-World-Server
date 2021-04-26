@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const Item = require("../models/Item");
 
 const Room = require("../models/Room");
-const itemData = require("../models/mockItem.json");
+const itemData = require("../models/mockData/mockItem.json");
 const {
   createRequestError,
   createAuthenticationError,
@@ -59,6 +59,8 @@ async function getItems(req, res, next) {
 // NOTE 관리자용
 async function insertItem(req, res, next) {
   try {
+    await Item.deleteMany({});
+
     for (let i = 0; i < itemData.length; i++) {
       await Item.create(itemData[i]);
     }

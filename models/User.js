@@ -55,6 +55,8 @@ userSchema.pre(/^save/, async function (next) {
       ownerName: this.name,
       items: await Item.find({}).lean(),
     });
+    console.log(room);
+
     this.roomId = room._id;
   }
 
