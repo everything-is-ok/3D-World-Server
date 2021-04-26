@@ -70,13 +70,8 @@ async function readMail(req, res, next) {
   try {
     const mailbox = await Mailbox.findOneAndUpdate(
       { "mails._id": mailId },
-      { $set: { "mails.$[elem].status": "READ" } },
-      {
-        arrayFilters: [{
-          "elem._id": mongoose.Types.ObjectId(mailId),
-        }],
-        new: true,
-      },
+      { $set: { "mails.$.status": "READ" } },
+      { new: true },
     );
 
     res.json({

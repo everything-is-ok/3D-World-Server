@@ -17,13 +17,8 @@ async function updatePosition(req, res, next) {
   try {
     await Room.findOneAndUpdate(
       { "items._id": id },
-      { $set: { "items.$[elem].position": position } },
-      {
-        arrayFilters: [{
-          "elem._id": mongoose.Types.ObjectId(id),
-        }],
-        new: true,
-      },
+      { $set: { "items.$.position": position } },
+      { new: true },
     );
 
     res.json({
