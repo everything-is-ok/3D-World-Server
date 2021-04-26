@@ -1,44 +1,22 @@
-const createError = require("http-errors");
 const mongoose = require("mongoose");
 
 const Room = require("../models/Room");
+const { createLoginError, createNotFoundError } = require("../utils/errors");
 
 async function getRoomByToken(req, res, next) {
   if (!req.user) {
-    next(createError(401, "authorization is invalid"));
+    next(createLoginError("Unauthorized user"));
     return;
   }
 
   const { roomId } = req.user;
 
   try {
-    // NOTE: room === null인 case의 error handling이 필요한가?
     const room = await Room.findById(roomId).lean();
 
     res.json({ ok: true, data: room });
   } catch (err) {
-    next(err);
-  }
-}
-
-async function getRoomById(req, res, next) {
-  const { id } = req.params;
-
-  if (!(mongoose.Types.ObjectId.isValid(id))) {
-    next(createError(400, "id of params is invalid"));
-    return;
-  }
-
-  try {
-    const room = await Room.findById(id).lean();
-
-    if (!room) {
-      next(createError(400, "id of params is invalid"));
-      return;
-    }
-
-    res.json({ ok: true, data: room });
-  } catch (err) {
+    console.log("💥 getRoomByToken");
     next(err);
   }
 }
@@ -47,7 +25,7 @@ async function getRoomByUserId(req, res, next) {
   const { userId } = req.params;
 
   if (!(mongoose.Types.ObjectId.isValid(userId))) {
-    next(createError(400, "id of params is invalid"));
+    next(createNotFoundError());
     return;
   }
 
@@ -55,16 +33,16 @@ async function getRoomByUserId(req, res, next) {
     const room = await Room.findOne({ ownerId: userId }).lean();
 
     if (!room) {
-      next(createError(400, "id of params is invalid"));
+      next(createNotFoundError());
       return;
     }
 
     res.json({ ok: true, data: room });
   } catch (err) {
+    console.log("💥 getRoomByUserId");
     next(err);
   }
 }
 
 exports.getRoomByToken = getRoomByToken;
-exports.getRoomById = getRoomById;
 exports.getRoomByUserId = getRoomByUserId;

@@ -1,10 +1,7 @@
-const findOrCreate = require("mongoose-find-or-create");
 const mongoose = require("mongoose");
 
 const Room = require("./Room");
 
-// TODO: add schema
-// TODO: 디폴트 이미지 어쩔지 생각해보기
 const defaultPhotoURL = "https://cdn.pixabay.com/photo/2018/04/18/18/56/user-3331257__340.png";
 const defaultMusicURL = "https://www.youtube.com/watch?v=MzPjJQIQ0-s";
 
@@ -45,8 +42,6 @@ const userSchema = new mongoose.Schema({
 }, {
   timestamps: true,
 });
-
-userSchema.plugin(findOrCreate);
 
 userSchema.pre(/^save/, async function (next) {
   if (!this.roomId) {

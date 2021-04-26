@@ -1,35 +1,59 @@
-const createError = require("http-errors");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
-// TODO: req.user가 어떤식으로 들어오는지 확인 필요
 
 const User = require("../models/User");
+const { validateName, validateAsyncEmail } = require("../utils/validation");
+const {
+  createRequestError,
+  createAuthenticationError,
+  createNotFoundError,
+} = require("../utils/errors");
 
-function postLogin(req, res, next) {
-  const { email, name, photoURL } = req.body;
+async function postLogin(req, res, next) {
+  try {
+    const { email, photoURL } = req.body;
+    let { name } = req.body;
 
-  User.findOrCreate({ email }, { name, photoURL }, async (err, user) => {
-    if (err) {
-      next(err);
-      return;
+    await validateAsyncEmail(email);
+
+    const nameValidationResult = validateName(name);
+
+    if (nameValidationResult.error) {
+      name = "what is your name";
     }
 
-    const accessToken = jwt.sign({
-      id: user._id,
-    }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "3h" });
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      user = await User.create({ email, name, photoURL });
+    }
+
+    const accessToken = jwt.sign(
+      { id: user._id },
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: "3h" },
+    );
 
     const populated = await user.populate("friends").execPopulate();
 
     res.cookie("authorization", `bearer ${accessToken}`);
     res.json({ ok: true, data: populated });
-  });
+  } catch (err) {
+    if (err.details && err.details[0].type === "string.email") {
+      next(createRequestError("Email is invalid."));
+      return;
+    }
+
+    console.log("💥 postLogin");
+    next(err);
+  }
 }
 
 async function getUserByToken(req, res, next) {
   const { user } = req;
 
   if (!user) {
-    next(createError(401, "user is not exist."));
+    next(createAuthenticationError("Unauthorized user"));
     return;
   }
 
@@ -40,16 +64,16 @@ async function getUserByToken(req, res, next) {
 async function updateUser(req, res, next) {
   const { _id } = req.user;
   const {
-    name,
     description,
     photoURL,
     musicURL,
     friend,
   } = req.body;
+  let { name } = req.body;
   let newUser = {};
 
   if (!req.user) {
-    next(createError(401, "authorization is invalid"));
+    next(createAuthenticationError("Unauthorized user"));
     return;
   }
 
@@ -63,6 +87,12 @@ async function updateUser(req, res, next) {
 
       res.json({ ok: true, data: populatedUser });
       return;
+    }
+
+    const nameValidationResult = validateName(name);
+
+    if (nameValidationResult.error) {
+      name = "alphabet or number name";
     }
 
     const updateInfo = {
@@ -79,6 +109,7 @@ async function updateUser(req, res, next) {
 
     res.json({ ok: true, data: populatedUser });
   } catch (err) {
+    console.log("💥 updateUser");
     next(err);
   }
 }
@@ -87,7 +118,7 @@ async function deleteUser(req, res, next) {
   const { user } = req;
 
   if (!user) {
-    next(createError(401, "authorization is invalid."));
+    next(createAuthenticationError("Unauthorized user"));
     return;
   }
 
@@ -96,6 +127,7 @@ async function deleteUser(req, res, next) {
 
     res.json({ ok: true, data: user });
   } catch (err) {
+    console.log("💥 deleteUser");
     next(err);
   }
 }
@@ -104,7 +136,7 @@ async function getUserById(req, res, next) {
   const { id } = req.params;
 
   if (!(mongoose.Types.ObjectId.isValid(id))) {
-    next(createError(400, "id of param is invalid."));
+    next(createNotFoundError());
     return;
   }
 
@@ -113,12 +145,13 @@ async function getUserById(req, res, next) {
 
     if (!user) {
       // NOTE: 404 not found를 띄울지는 client에서 결정하는 것이므로, 서버에서는 id가 없다는 정보를 주면 될까?
-      next(createError(400, "user is not exist."));
+      next(createRequestError());
       return;
     }
 
     res.json({ ok: true, data: user });
   } catch (err) {
+    console.log("💥 getUserById");
     next(err);
   }
 }
@@ -129,8 +162,10 @@ async function getRandomUserIds(req, res, next) {
 
   try {
     const users = await User.aggregate([{ $sample: { size: Number(size) } }]);
+
     res.json({ ok: true, data: users });
   } catch (err) {
+    console.log("💥 getRandomUserIds");
     next(err);
   }
 }

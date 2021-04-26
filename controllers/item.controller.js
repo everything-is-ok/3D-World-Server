@@ -1,48 +1,24 @@
-const createError = require("http-errors");
 const mongoose = require("mongoose");
 
 const Room = require("../models/Room");
-
-// TODO 관리자용이라 추후 삭제가능
-async function getItems(req, res, next) {
-  if (!req.user) {
-    next(createError(401, "authorization is invalid"));
-    return;
-  }
-
-  const { _id } = req.user;
-
-  try {
-    const items = await Room.findOne({ ownerId: _id }, "items").lean()
-      .populate("items");
-
-    res.json({
-      ok: true,
-      data: items,
-    });
-  } catch (err) {
-    next(err);
-  }
-}
+const {
+  createRequestError,
+  createAuthenticationError,
+} = require("../utils/errors");
 
 async function updatePosition(req, res, next) {
   const { id, position } = req.body;
 
   if (!(mongoose.Types.ObjectId.isValid(id))) {
-    next(createError(400, "id of params is invalid"));
+    next(createRequestError());
     return;
   }
 
   try {
     await Room.findOneAndUpdate(
       { "items._id": id },
-      { $set: { "items.$[elem].position": position } },
-      {
-        arrayFilters: [{
-          "elem._id": mongoose.Types.ObjectId(id),
-        }],
-        new: true,
-      },
+      { $set: { "items.$.position": position } },
+      { new: true },
     );
 
     res.json({
@@ -50,28 +26,64 @@ async function updatePosition(req, res, next) {
       data: { id, position },
     });
   } catch (err) {
+    console.log("💥 updatePosition");
     next(err);
   }
 }
 
-// NOTE 샘플 저장용
-async function insertItem(req, res, next) {
+// NOTE 관리자용
+async function getItems(req, res, next) {
+  if (!req.user) {
+    next(createAuthenticationError());
+    return;
+  }
+
   const { _id } = req.user;
 
   try {
-    await Room.findOneAndUpdate(
+    const items = await Room.findOne({ ownerId: _id }, "items")
+      .populate("items")
+      .lean();
+
+    res.json({
+      ok: true,
+      data: items,
+    });
+  } catch (err) {
+    console.log("💥 getItems");
+    next(err);
+  }
+}
+
+// NOTE 관리자용
+async function insertItem(req, res, next) {
+  if (!req.user) {
+    next(createAuthenticationError());
+    return;
+  }
+
+  const { _id } = req.user;
+
+  try {
+    const room = await Room.findOneAndUpdate(
       { ownerId: _id },
       {
         $push: {
           items: {
             _id: "60817a4063620b071bb7a455",
-            position: [7 * 40, 24, 2 * 40],
+            position: [120, 24, 120],
           },
         },
       },
       { new: true },
     );
+
+    res.json({
+      ok: true,
+      data: room,
+    });
   } catch (err) {
+    console.log("💥 insertItem");
     next(err);
   }
 }

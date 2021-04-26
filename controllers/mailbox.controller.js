@@ -1,12 +1,16 @@
-const createError = require("http-errors");
 const mongoose = require("mongoose");
 
 const Mailbox = require("../models/Mailbox");
 const Room = require("../models/Room");
+const {
+  createRequestError,
+  createAuthenticationError,
+  createNotFoundError,
+} = require("../utils/errors");
 
 async function getMailList(req, res, next) {
   if (!req.user) {
-    next(createError(401, "authorization is invalid"));
+    next(createAuthenticationError());
     return;
   }
 
@@ -21,17 +25,101 @@ async function getMailList(req, res, next) {
       data: mailboxData.mailboxId,
     });
   } catch (err) {
+    console.log("💥 getMailList");
+    next(err);
+  }
+}
+
+async function postMail(req, res, next) {
+  const { _id: sender } = req.user;
+  const { content } = req.body;
+  const { id } = req.params;
+
+  if (!(mongoose.Types.ObjectId.isValid(id))) {
+    next(createRequestError());
+    return;
+  }
+
+  try {
+    const addEmail = { $push: { mails: { content, sender } } };
+    const mailbox = await Mailbox.findByIdAndUpdate(id, addEmail, { new: true });
+
+    if (!mailbox) {
+      next(createNotFoundError("Mailbox is not exist.."));
+      return;
+    }
+
+    res.json({
+      ok: true,
+      data: mailbox,
+    });
+  } catch (err) {
+    console.log("💥 postMail");
+    next(err);
+  }
+}
+
+async function readMail(req, res, next) {
+  const { mailId } = req.body;
+
+  if (!(mongoose.Types.ObjectId.isValid(mailId))) {
+    next(createRequestError());
+    return;
+  }
+
+  try {
+    const mailbox = await Mailbox.findOneAndUpdate(
+      { "mails._id": mailId },
+      { $set: { "mails.$.status": "READ" } },
+      { new: true },
+    );
+
+    res.json({
+      ok: true,
+      data: mailbox,
+    });
+  } catch (err) {
+    console.log("💥 readMail");
+    next(err);
+  }
+}
+
+async function deleteMail(req, res, next) {
+  const { id } = req.params;
+
+  if (!(mongoose.Types.ObjectId.isValid(id))) {
+    next(createRequestError());
+    return;
+  }
+
+  try {
+    const deleteResult = await Mailbox.updateOne(
+      { "mails._id": id },
+      { $pull: { mails: { _id: id } } },
+    );
+
+    if (!deleteResult.nModified) {
+      next();
+    }
+
+    res.json({
+      ok: true,
+      data: id,
+    });
+  } catch (err) {
+    console.log("💥 deleteMail");
     next(err);
   }
 }
 
 async function deleteMailList(req, res, next) {
   if (!req.user) {
-    next(createError(401, "authorization is invalid"));
+    next(createAuthenticationError());
     return;
   }
 
   const { _id } = req.user;
+
   try {
     const mailboxData = await Room.findOne({ ownerId: _id }, "mailboxId");
     const { mailboxId } = mailboxData;
@@ -44,7 +132,7 @@ async function deleteMailList(req, res, next) {
     );
 
     if (!deleteMailResult) {
-      next(createError(403, "bad request"));
+      next(createNotFoundError("Mailbox is not exist.."));
       return;
     }
 
@@ -53,87 +141,13 @@ async function deleteMailList(req, res, next) {
       data: deleteMailResult,
     });
   } catch (err) {
-    next(err);
-  }
-}
-
-async function postMail(req, res, next) {
-  const { _id: sender } = req.user;
-  const { content } = req.body;
-  const { id } = req.params;
-
-  if (!(mongoose.Types.ObjectId.isValid(id))) {
-    next(createError(400, "id of params is invalid"));
-    return;
-  }
-
-  try {
-    const addEmail = { $push: { mails: { content, sender } } };
-    const mailbox = await Mailbox.findByIdAndUpdate(id, addEmail, { new: true });
-
-    if (!mailbox) {
-      next(createError(403, "bad request"));
-      return;
-    }
-
-    res.json({
-      ok: true,
-      data: mailbox,
-    });
-  } catch (err) {
-    next(err);
-  }
-}
-
-async function deleteMail(req, res, next) {
-  const { id } = req.params;
-
-  try {
-    const deleteResult = await Mailbox.updateOne(
-      { "mails._id": id },
-      { $pull: { mails: { _id: id } } },
-    );
-
-    if (!deleteResult.nModified) {
-      next(createError(403, "bad request"));
-    }
-
-    res.json({
-      ok: true,
-      data: id,
-    });
-  } catch (err) {
-    next(err);
-  }
-}
-
-// NOTE update 메소드 확인 다시 해야함
-async function readMail(req, res, next) {
-  const { mailId } = req.body;
-
-  try {
-    const mailbox = await Mailbox.findOneAndUpdate(
-      { "mails._id": mailId },
-      { $set: { "mails.$[elem].status": "READ" } },
-      {
-        arrayFilters: [{
-          "elem._id": mongoose.Types.ObjectId(mailId),
-        }],
-        new: true,
-      },
-    );
-
-    res.json({
-      ok: true,
-      data: mailbox,
-    });
-  } catch (err) {
+    console.log("💥 deleteMailList");
     next(err);
   }
 }
 
 exports.getMailList = getMailList;
-exports.deleteMailList = deleteMailList;
 exports.postMail = postMail;
-exports.deleteMail = deleteMail;
 exports.readMail = readMail;
+exports.deleteMail = deleteMail;
+exports.deleteMailList = deleteMailList;
