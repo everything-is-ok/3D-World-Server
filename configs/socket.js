@@ -1,5 +1,5 @@
 const socketIo = require("socket.io")();
-
+// TODO: 어디는 posinfo 어디는 position,,,, 맞추기
 const openedRooms = {};
 
 socketIo.on("connection", (socket) => {
