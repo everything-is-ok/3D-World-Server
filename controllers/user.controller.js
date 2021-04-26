@@ -1,9 +1,13 @@
-const createError = require("http-errors");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 
 const User = require("../models/User");
 const { validateName, validateAsyncEmail } = require("../utils/validation");
+const {
+  createRequestError,
+  createAuthenticationError,
+  createNotFoundError,
+} = require("../utils/errors");
 
 async function postLogin(req, res, next) {
   try {
@@ -36,7 +40,7 @@ async function postLogin(req, res, next) {
     res.json({ ok: true, data: populated });
   } catch (err) {
     if (err.details && err.details[0].type === "string.email") {
-      next(createError(400, "Email is invalid."));
+      next(createRequestError("Email is invalid."));
       return;
     }
 
@@ -49,7 +53,7 @@ async function getUserByToken(req, res, next) {
   const { user } = req;
 
   if (!user) {
-    next(createError(401, "Unauthorized user"));
+    next(createAuthenticationError("Unauthorized user"));
     return;
   }
 
@@ -69,7 +73,7 @@ async function updateUser(req, res, next) {
   let newUser = {};
 
   if (!req.user) {
-    next(createError(401, "Unauthorized user"));
+    next(createAuthenticationError("Unauthorized user"));
     return;
   }
 
@@ -114,7 +118,7 @@ async function deleteUser(req, res, next) {
   const { user } = req;
 
   if (!user) {
-    next(createError(401, "Unauthorized user"));
+    next(createAuthenticationError("Unauthorized user"));
     return;
   }
 
@@ -132,7 +136,7 @@ async function getUserById(req, res, next) {
   const { id } = req.params;
 
   if (!(mongoose.Types.ObjectId.isValid(id))) {
-    next(createError(404, "Not found page"));
+    next(createNotFoundError());
     return;
   }
 
@@ -141,7 +145,7 @@ async function getUserById(req, res, next) {
 
     if (!user) {
       // NOTE: 404 not found를 띄울지는 client에서 결정하는 것이므로, 서버에서는 id가 없다는 정보를 주면 될까?
-      next(createError(400, "user is not exist."));
+      next(createRequestError());
       return;
     }
 
