@@ -3,10 +3,15 @@ const mongoose = require("mongoose");
 
 const Mailbox = require("../models/Mailbox");
 const Room = require("../models/Room");
+const {
+  createRequestError,
+  createAuthenticationError,
+  createNotFoundError,
+} = require("../utils/errors");
 
 async function getMailList(req, res, next) {
   if (!req.user) {
-    next(createError(401, "Authorization is invalid"));
+    next(createAuthenticationError());
     return;
   }
 
@@ -31,7 +36,7 @@ async function postMail(req, res, next) {
   const { id } = req.params;
 
   if (!(mongoose.Types.ObjectId.isValid(id))) {
-    next(createError(404, "Not found"));
+    next(createRequestError());
     return;
   }
 
@@ -40,7 +45,7 @@ async function postMail(req, res, next) {
     const mailbox = await Mailbox.findByIdAndUpdate(id, addEmail, { new: true });
 
     if (!mailbox) {
-      next(createError(403, "bad request"));
+      next(createNotFoundError("Mailbox is not exist.."));
       return;
     }
 
@@ -57,7 +62,7 @@ async function readMail(req, res, next) {
   const { mailId } = req.body;
 
   if (!(mongoose.Types.ObjectId.isValid(mailId))) {
-    next(createError(400, "id of params is invalid"));
+    next(createRequestError());
     return;
   }
 
@@ -86,7 +91,7 @@ async function deleteMail(req, res, next) {
   const { id } = req.params;
 
   if (!(mongoose.Types.ObjectId.isValid(id))) {
-    next(createError(400, "id of params is invalid"));
+    next(createRequestError());
     return;
   }
 
@@ -97,7 +102,7 @@ async function deleteMail(req, res, next) {
     );
 
     if (!deleteResult.nModified) {
-      next(createError(403, "bad request"));
+      next();
     }
 
     res.json({
@@ -111,7 +116,7 @@ async function deleteMail(req, res, next) {
 
 async function deleteMailList(req, res, next) {
   if (!req.user) {
-    next(createError(401, "authorization is invalid"));
+    next(createAuthenticationError());
     return;
   }
 
@@ -129,7 +134,7 @@ async function deleteMailList(req, res, next) {
     );
 
     if (!deleteMailResult) {
-      next(createError(403, "bad request"));
+      next(createNotFoundError("Mailbox is not exist.."));
       return;
     }
 
