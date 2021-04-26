@@ -1,11 +1,11 @@
-const createError = require("http-errors");
 const mongoose = require("mongoose");
 
 const Room = require("../models/Room");
+const { createLoginError, createNotFoundError } = require("../utils/errors");
 
 async function getRoomByToken(req, res, next) {
   if (!req.user) {
-    next(createError(401, "authorization is invalid"));
+    next(createLoginError("Unauthorized user"));
     return;
   }
 
@@ -16,6 +16,7 @@ async function getRoomByToken(req, res, next) {
 
     res.json({ ok: true, data: room });
   } catch (err) {
+    console.log("💥 getRoomByToken");
     next(err);
   }
 }
@@ -24,7 +25,7 @@ async function getRoomByUserId(req, res, next) {
   const { userId } = req.params;
 
   if (!(mongoose.Types.ObjectId.isValid(userId))) {
-    next(createError(400, "id of params is invalid"));
+    next(createNotFoundError());
     return;
   }
 
@@ -32,12 +33,13 @@ async function getRoomByUserId(req, res, next) {
     const room = await Room.findOne({ ownerId: userId }).lean();
 
     if (!room) {
-      next(createError(400, "id of params is invalid"));
+      next(createNotFoundError());
       return;
     }
 
     res.json({ ok: true, data: room });
   } catch (err) {
+    console.log("💥 getRoomByUserId");
     next(err);
   }
 }
