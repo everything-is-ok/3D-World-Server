@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
+const Item = require("../models/Item");
 
 const Room = require("../models/Room");
+const itemData = require("../models/mockItem.json");
 const {
   createRequestError,
   createAuthenticationError,
@@ -56,36 +58,53 @@ async function getItems(req, res, next) {
 
 // NOTE 관리자용
 async function insertItem(req, res, next) {
-  if (!req.user) {
-    next(createAuthenticationError());
-    return;
-  }
-
-  const { _id } = req.user;
-
   try {
-    const room = await Room.findOneAndUpdate(
-      { ownerId: _id },
-      {
-        $push: {
-          items: {
-            _id: "60817a4063620b071bb7a455",
-            position: [120, 24, 120],
-          },
-        },
-      },
-      { new: true },
-    );
+    for (let i = 0; i < itemData.length; i++) {
+      await Item.create(itemData[i]);
+    }
+
+    const itemList = await Item.find({}).lean();
 
     res.json({
       ok: true,
-      data: room,
+      data: itemList,
     });
   } catch (err) {
     console.log("💥 insertItem");
     next(err);
   }
 }
+// async function insertItem(req, res, next) {
+//   if (!req.user) {
+//     next(createAuthenticationError());
+//     return;
+//   }
+
+//   const { _id } = req.user;
+
+//   try {
+//     const room = await Room.findOneAndUpdate(
+//       { ownerId: _id },
+//       {
+//         $push: {
+//           items: {
+//             _id: "60817a4063620b071bb7a455",
+//             position: [120, 24, 120],
+//           },
+//         },
+//       },
+//       { new: true },
+//     );
+
+//     res.json({
+//       ok: true,
+//       data: room,
+//     });
+//   } catch (err) {
+//     console.log("💥 insertItem");
+//     next(err);
+//   }
+// }
 
 exports.getItems = getItems;
 exports.updatePosition = updatePosition;
