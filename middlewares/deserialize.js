@@ -15,11 +15,22 @@ async function deserialize(req, res, next) {
   const token = authorization.split("bearer ")[1];
 
   try {
-    const { id } = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+
     const user = await User
-      .findById(id)
+      .findById(decodedToken.id)
       ?.populate("friends")
       .lean();
+
+    const isExpiredInOneHour = decodedToken.exp - Date.now() < 60 * 60 * 1000;
+
+    if (isExpiredInOneHour) {
+      const accessToken = jwt.sign({
+        id: decodedToken.id,
+      }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "3h" });
+
+      res.cookie("authorization", `bearer ${accessToken}`);
+    }
 
     if (!user) {
       req.user = null;

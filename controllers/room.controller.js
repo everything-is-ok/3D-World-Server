@@ -12,30 +12,7 @@ async function getRoomByToken(req, res, next) {
   const { roomId } = req.user;
 
   try {
-    // NOTE: room === null인 case의 error handling이 필요한가?
     const room = await Room.findById(roomId).lean();
-
-    res.json({ ok: true, data: room });
-  } catch (err) {
-    next(err);
-  }
-}
-
-async function getRoomById(req, res, next) {
-  const { id } = req.params;
-
-  if (!(mongoose.Types.ObjectId.isValid(id))) {
-    next(createError(400, "id of params is invalid"));
-    return;
-  }
-
-  try {
-    const room = await Room.findById(id).lean();
-
-    if (!room) {
-      next(createError(400, "id of params is invalid"));
-      return;
-    }
 
     res.json({ ok: true, data: room });
   } catch (err) {
@@ -66,5 +43,4 @@ async function getRoomByUserId(req, res, next) {
 }
 
 exports.getRoomByToken = getRoomByToken;
-exports.getRoomById = getRoomById;
 exports.getRoomByUserId = getRoomByUserId;

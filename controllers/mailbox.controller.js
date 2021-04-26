@@ -25,38 +25,6 @@ async function getMailList(req, res, next) {
   }
 }
 
-async function deleteMailList(req, res, next) {
-  if (!req.user) {
-    next(createError(401, "authorization is invalid"));
-    return;
-  }
-
-  const { _id } = req.user;
-  try {
-    const mailboxData = await Room.findOne({ ownerId: _id }, "mailboxId");
-    const { mailboxId } = mailboxData;
-
-    const initializeMails = { $set: { mails: [] } };
-    const deleteMailResult = await Mailbox.findByIdAndUpdate(
-      mailboxId,
-      initializeMails,
-      { new: true },
-    );
-
-    if (!deleteMailResult) {
-      next(createError(403, "bad request"));
-      return;
-    }
-
-    res.json({
-      ok: true,
-      data: deleteMailResult,
-    });
-  } catch (err) {
-    next(err);
-  }
-}
-
 async function postMail(req, res, next) {
   const { _id: sender } = req.user;
   const { content } = req.body;
@@ -85,31 +53,13 @@ async function postMail(req, res, next) {
   }
 }
 
-async function deleteMail(req, res, next) {
-  const { id } = req.params;
-
-  try {
-    const deleteResult = await Mailbox.updateOne(
-      { "mails._id": id },
-      { $pull: { mails: { _id: id } } },
-    );
-
-    if (!deleteResult.nModified) {
-      next(createError(403, "bad request"));
-    }
-
-    res.json({
-      ok: true,
-      data: id,
-    });
-  } catch (err) {
-    next(err);
-  }
-}
-
-// NOTE update 메소드 확인 다시 해야함
 async function readMail(req, res, next) {
   const { mailId } = req.body;
+
+  if (!(mongoose.Types.ObjectId.isValid(mailId))) {
+    next(createError(400, "id of params is invalid"));
+    return;
+  }
 
   try {
     const mailbox = await Mailbox.findOneAndUpdate(
@@ -132,8 +82,68 @@ async function readMail(req, res, next) {
   }
 }
 
+async function deleteMail(req, res, next) {
+  const { id } = req.params;
+
+  if (!(mongoose.Types.ObjectId.isValid(id))) {
+    next(createError(400, "id of params is invalid"));
+    return;
+  }
+
+  try {
+    const deleteResult = await Mailbox.updateOne(
+      { "mails._id": id },
+      { $pull: { mails: { _id: id } } },
+    );
+
+    if (!deleteResult.nModified) {
+      next(createError(403, "bad request"));
+    }
+
+    res.json({
+      ok: true,
+      data: id,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function deleteMailList(req, res, next) {
+  if (!req.user) {
+    next(createError(401, "authorization is invalid"));
+    return;
+  }
+
+  const { _id } = req.user;
+
+  try {
+    const mailboxData = await Room.findOne({ ownerId: _id }, "mailboxId");
+    const { mailboxId } = mailboxData;
+
+    const initializeMails = { $set: { mails: [] } };
+    const deleteMailResult = await Mailbox.findByIdAndUpdate(
+      mailboxId,
+      initializeMails,
+      { new: true },
+    );
+
+    if (!deleteMailResult) {
+      next(createError(403, "bad request"));
+      return;
+    }
+
+    res.json({
+      ok: true,
+      data: deleteMailResult,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
 exports.getMailList = getMailList;
-exports.deleteMailList = deleteMailList;
 exports.postMail = postMail;
-exports.deleteMail = deleteMail;
 exports.readMail = readMail;
+exports.deleteMail = deleteMail;
+exports.deleteMailList = deleteMailList;
