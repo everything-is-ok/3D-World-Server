@@ -9,7 +9,6 @@ async function getRoomByToken(req, res, next) {
     return;
   }
 
-  console.log(req.user);
   const { roomId } = req.user;
 
   try {
