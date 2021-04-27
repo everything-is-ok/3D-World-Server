@@ -6,3 +6,9 @@ node_modules
 .DS_Store
 
 .settings/
+
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
