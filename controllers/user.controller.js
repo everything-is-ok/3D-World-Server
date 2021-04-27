@@ -36,7 +36,7 @@ async function postLogin(req, res, next) {
 
     const populated = await user.populate("friends").execPopulate();
 
-    res.cookie("authorization", `bearer ${accessToken}`);
+    res.cookie("authorization", `bearer ${accessToken}`, { httpOnly: true });
     res.json({ ok: true, data: populated });
   } catch (err) {
     if (err.details && err.details[0].type === "string.email") {
