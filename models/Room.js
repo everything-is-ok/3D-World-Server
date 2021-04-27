@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const Mailbox = require("./Mailbox");
 
-// TODO 추후 rotation, isPlaced 안쓰면 삭제
+// TODO 추후 rotation 안쓰면 삭제
 const roomSchema = new mongoose.Schema({
   items: [
     {
@@ -11,17 +11,17 @@ const roomSchema = new mongoose.Schema({
         ref: "Item",
         required: true,
       },
+      name: {
+        type: String,
+        required: true,
+      },
       position: {
         type: Array,
-        default: [],
+        required: true,
       },
       rotation: {
         type: Array,
-        default: [],
-      },
-      isPlaced: {
-        type: Boolean,
-        default: false,
+        default: [0, 0, 0],
       },
     },
   ],

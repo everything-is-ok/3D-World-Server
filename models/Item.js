@@ -5,6 +5,14 @@ const itemSchema = new mongoose.Schema({
     type: String,
     required: [true, "itemName is required."],
   },
+  position: {
+    type: Array,
+    required: [true, "position is required"],
+  },
+  direction: {
+    type: Array,
+    default: [0, 0, 0],
+  },
 }, {
   timestamps: true,
 });

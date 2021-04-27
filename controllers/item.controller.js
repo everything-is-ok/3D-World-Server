@@ -1,12 +1,16 @@
 const mongoose = require("mongoose");
 
 const Room = require("../models/Room");
+const Item = require("../models/Item");
+const itemData = require("../models/mockData/mockItem.json");
+
 const {
   createRequestError,
   createAuthenticationError,
 } = require("../utils/errors");
 
 async function updatePosition(req, res, next) {
+  const { roomId } = req.user;
   const { id, position } = req.body;
 
   if (!(mongoose.Types.ObjectId.isValid(id))) {
@@ -16,7 +20,7 @@ async function updatePosition(req, res, next) {
 
   try {
     await Room.findOneAndUpdate(
-      { "items._id": id },
+      { _id: roomId, "items._id": id },
       { $set: { "items.$.position": position } },
       { new: true },
     );
@@ -41,9 +45,7 @@ async function getItems(req, res, next) {
   const { _id } = req.user;
 
   try {
-    const items = await Room.findOne({ ownerId: _id }, "items")
-      .populate("items")
-      .lean();
+    const items = await Room.findOne({ ownerId: _id }, "items").lean();
 
     res.json({
       ok: true,
@@ -65,22 +67,17 @@ async function insertItem(req, res, next) {
   const { _id } = req.user;
 
   try {
-    const room = await Room.findOneAndUpdate(
-      { ownerId: _id },
-      {
-        $push: {
-          items: {
-            _id: "60817a4063620b071bb7a455",
-            position: [120, 24, 120],
-          },
-        },
-      },
-      { new: true },
-    );
+    await Item.deleteMany({});
+
+    for (let i = 0; i < itemData.length; i++) {
+      await Item.create(itemData[i]);
+    }
+
+    const itemList = await Item.find({}).lean();
 
     res.json({
       ok: true,
-      data: room,
+      data: itemList,
     });
   } catch (err) {
     console.log("💥 insertItem");
