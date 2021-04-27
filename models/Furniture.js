@@ -1,9 +1,9 @@
 const mongoose = require("mongoose");
 
-const itemSchema = new mongoose.Schema({
-  itemName: {
+const furnitureSchema = new mongoose.Schema({
+  name: {
     type: String,
-    required: [true, "itemName is required."],
+    required: [true, "name is required."],
   },
   position: {
     type: Array,
@@ -17,4 +17,4 @@ const itemSchema = new mongoose.Schema({
   timestamps: true,
 });
 
-module.exports = mongoose.model("Item", itemSchema);
+module.exports = mongoose.model("Furniture", furnitureSchema);
