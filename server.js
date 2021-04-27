@@ -35,7 +35,7 @@ app.use("/", router);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
-  next(createError(404));
+  next(createError(404, "Not found page"));
 });
 
 // error handler
@@ -43,7 +43,6 @@ app.use((err, req, res, next) => {
   // TODO: 분기를 활용하여 에러핸들링
   // set locals, only providing error in development
   // req.app.get("env") === "development" ? err : {};
-
   if (err.name === "ValidationError") {
     const errors = Object.values(err.errors).map((el) => el.message);
     const message = `Invalid input data. ${errors.join(". ")}`;

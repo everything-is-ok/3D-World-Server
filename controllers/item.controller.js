@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const Room = require("../models/Room");
 const Item = require("../models/Item");
 const itemData = require("../models/mockData/mockItem.json");
+
 const {
   createRequestError,
   createAuthenticationError,
@@ -21,9 +22,7 @@ async function updatePosition(req, res, next) {
     await Room.findOneAndUpdate(
       { _id: roomId, "items._id": id },
       { $set: { "items.$.position": position } },
-      {
-        new: true,
-      },
+      { new: true },
     );
 
     res.json({
@@ -47,6 +46,7 @@ async function getItems(req, res, next) {
 
   try {
     const items = await Room.findOne({ ownerId: _id }, "items").lean();
+
     res.json({
       ok: true,
       data: items,
@@ -59,6 +59,13 @@ async function getItems(req, res, next) {
 
 // NOTE 관리자용
 async function insertItem(req, res, next) {
+  if (!req.user) {
+    next(createAuthenticationError());
+    return;
+  }
+
+  const { _id } = req.user;
+
   try {
     await Item.deleteMany({});
 
