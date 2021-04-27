@@ -99,7 +99,7 @@ async function deleteMail(req, res, next) {
     );
 
     if (!deleteResult.nModified) {
-      next();
+      next(createRequestError());
     }
 
     res.json({
