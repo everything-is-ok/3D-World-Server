@@ -4,11 +4,11 @@ const Mailbox = require("./Mailbox");
 
 // TODO 추후 rotation 안쓰면 삭제
 const roomSchema = new mongoose.Schema({
-  items: [
+  furniture: [
     {
       _id: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Item",
+        ref: "Furniture",
         required: true,
       },
       name: {

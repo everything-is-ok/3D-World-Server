@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const Room = require("./Room");
-const Item = require("./Item");
+const Furniture = require("./Furniture");
 
 const defaultPhotoURL = "https://cdn.pixabay.com/photo/2018/04/18/18/56/user-3331257__340.png";
 const defaultMusicURL = "https://www.youtube.com/watch?v=iTY3nhZQuXU";
@@ -49,7 +49,7 @@ userSchema.pre(/^save/, async function (next) {
     const room = await Room.create({
       ownerId: this._id,
       ownerName: this.name,
-      items: await Item.find({}).lean(),
+      furniture: await Furniture.find({}).lean(),
     });
     this.roomId = room._id;
   }
