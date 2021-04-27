@@ -24,9 +24,6 @@ const mailboxSchema = new mongoose.Schema({
         },
       ),
     },
-    {
-      timestamps: true,
-    },
   ],
 }, {
   timestamps: true,

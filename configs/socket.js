@@ -1,99 +1,89 @@
 const socketIo = require("socket.io")();
-
-const openedRooms = {};
+const {
+  JOIN_ROOM,
+  NEW_USER_SOCKET_ID,
+  USER_MOVEMENT,
+  OLD_USER_INFO,
+  CHAT_MESSAGE,
+  FURNITURE_MOVEMENT,
+  LEAVE_ROOM,
+  JOIN_WORLD,
+  UPDATE_MOVEMENT,
+  LEAVE_WORLD,
+} = require("../constants/socketEvents");
 
 socketIo.on("connection", (socket) => {
-  console.log("A user connected to socket");
+  console.log("🔗A user connected to socket");
 
-  socket.on("room", ({ user, roomId }) => {
-    console.log(`${user.name} user join ${roomId}`);
-
-    // NOTE: socket.on("room")의 user, roomId와 closure가 형성되어있기때문에, 별도의 룸 관리가 없어도 될 듯
-    // TODO: 사용하지 않는다면 추후 삭제
-    openedRooms[roomId]
-      ? openedRooms[roomId][user.id] = { name: user.name, socketId: socket.id }
-      : openedRooms[roomId] = { [user.id]: { name: user.name, socketId: socket.id } };
-
-    console.log("From join room, current opened room list", openedRooms);
-
+  socket.on(JOIN_ROOM, ({ user, roomId }) => {
     socket.join(roomId);
-    socket.broadcast
-      .to(roomId)
-      .emit("room", { ...user });
 
     socket.broadcast
       .to(roomId)
-      .emit("newUser", { socketId: socket.id });
+      .emit(JOIN_ROOM, { ...user });
 
-    socket.on("chat", ({ message }) => {
+    socket.broadcast
+      .to(roomId)
+      .emit(NEW_USER_SOCKET_ID, { socketId: socket.id });
+
+    socket.on(USER_MOVEMENT, ({ position, direction }) => {
       socket.broadcast
         .to(roomId)
-        .emit("chat", { user: user.name, message });
+        .emit(USER_MOVEMENT, { user, position, direction });
     });
 
-    socket.on("move", ({ position, direction }) => {
-      console.log(`name: ${user.name}, position: ${position}, direction: ${direction}`);
+    socket.on(OLD_USER_INFO, ({ listener, posInfo }) => {
+      socketIo.to(listener).emit(OLD_USER_INFO, posInfo);
+    });
+
+    socket.on(CHAT_MESSAGE, ({ message }) => {
       socket.broadcast
         .to(roomId)
-        .emit("move", { user, position, direction });
-    });
-
-    socket.on("oldUser", ({ listener, posInfo }) => {
-      socketIo.to(listener).emit("setOldUser", { ...posInfo });
+        .emit(CHAT_MESSAGE, { user: user.name, message });
     });
 
     // NOTE end Edit mode, database update
-    socket.on("update", ({ _id, position }) => {
-      console.log(`${_id}, ${position}`);
+    socket.on(FURNITURE_MOVEMENT, ({ _id, position }) => {
       socket.broadcast
         .to(roomId)
-        .emit("update", { _id, position });
+        .emit(FURNITURE_MOVEMENT, { _id, position });
     });
 
     socket.on("disconnect", () => {
-      console.log(`A ${user.name}user disconnected from socket`);
-
       socket.broadcast
         .to(roomId)
-        .emit("leave", user);
-
-      // NOTE: socket.on("room")의 user, roomId와 closure가 형성되어있기때문에, 별도의 룸 관리가 없어도 될 듯
-      // TODO: 사용하지 않는다면 추후 삭제
-      try {
-        openedRooms[roomId] && Object.keys(openedRooms[roomId]).length === 1
-          ? delete openedRooms[roomId]
-          : delete openedRooms[roomId][user.id];
-
-        console.log("From disconnetion, current opened room list", openedRooms);
-      } catch (err) {
-        console.log(err);
-      }
+        .emit(LEAVE_ROOM, user);
     });
   });
 
   // NOTE: World socket
-
-  socket.on("world", ({ user, position, direction }) => {
+  socket.on(JOIN_WORLD, (userInfo) => {
     socket.join("world1");
 
-    socket.broadcast.to("world1").emit("worldConnection", {
-      user,
-      position,
-      direction,
+    socket.broadcast
+      .to("world1")
+      .emit(JOIN_WORLD, userInfo);
+
+    socket.broadcast
+      .to("world1")
+      .emit(NEW_USER_SOCKET_ID, { socketId: socket.id });
+
+    socket.on(USER_MOVEMENT, ({ id, newPosition, newDirection }) => {
+      socket.broadcast
+        .to("world1")
+        .emit(UPDATE_MOVEMENT(id), { newPosition, newDirection });
     });
 
-    socket.broadcast.to("world1").emit("newUser");
-
-    socket.on("changePosition", ({ id, newPosition, newDirection }) => {
-      socket.broadcast.to("world1").emit(`receive_position_${id}`, { newPosition, newDirection });
+    socket.on(OLD_USER_INFO, ({ listener, userInfo: oldUserInfo }) => {
+      socketIo
+        .to(listener)
+        .emit(OLD_USER_INFO, oldUserInfo);
     });
 
-    socket.on("sendPosition", ({ user: oldUser, position: oldUserPosition, direction: oldUserDirection }) => {
-      socket.broadcast.to("world1").emit("worldConnection", {
-        user: oldUser,
-        position: oldUserPosition,
-        direction: oldUserDirection,
-      });
+    socket.on("disconnect", () => {
+      socket.broadcast
+        .to("world1")
+        .emit(LEAVE_WORLD, userInfo);
     });
   });
 });

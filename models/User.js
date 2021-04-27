@@ -1,12 +1,10 @@
-const findOrCreate = require("mongoose-find-or-create");
 const mongoose = require("mongoose");
 
 const Room = require("./Room");
+const Furniture = require("./Furniture");
 
-// TODO: add schema
-// TODO: 디폴트 이미지 어쩔지 생각해보기
 const defaultPhotoURL = "https://cdn.pixabay.com/photo/2018/04/18/18/56/user-3331257__340.png";
-const defaultMusicURL = "https://www.youtube.com/watch?v=MzPjJQIQ0-s";
+const defaultMusicURL = "https://www.youtube.com/watch?v=iTY3nhZQuXU";
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -46,13 +44,12 @@ const userSchema = new mongoose.Schema({
   timestamps: true,
 });
 
-userSchema.plugin(findOrCreate);
-
 userSchema.pre(/^save/, async function (next) {
   if (!this.roomId) {
     const room = await Room.create({
       ownerId: this._id,
       ownerName: this.name,
+      furniture: await Furniture.find({}).lean(),
     });
     this.roomId = room._id;
   }
