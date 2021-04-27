@@ -11,6 +11,10 @@ const roomSchema = new mongoose.Schema({
         ref: "Item",
         required: true,
       },
+      name: {
+        type: String,
+        required: true,
+      },
       position: {
         type: Array,
         required: true,
