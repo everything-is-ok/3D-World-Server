@@ -21,9 +21,7 @@ async function updatePosition(req, res, next) {
     await Room.findOneAndUpdate(
       { _id: roomId, "items._id": id },
       { $set: { "items.$.position": position } },
-      {
-        new: true,
-      },
+      { new: true },
     );
 
     res.json({
@@ -47,6 +45,7 @@ async function getItems(req, res, next) {
 
   try {
     const items = await Room.findOne({ ownerId: _id }, "items").lean();
+
     res.json({
       ok: true,
       data: items,
