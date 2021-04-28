@@ -68,10 +68,10 @@ socketIo.on("connection", (socket) => {
       .to("world1")
       .emit(NEW_USER_SOCKET_ID, { socketId: socket.id });
 
-    socket.on(USER_MOVEMENT, ({ id, newPosition, newDirection }) => {
+    socket.on(USER_MOVEMENT, ({ id, position, direction }) => {
       socket.broadcast
         .to("world1")
-        .emit(UPDATE_MOVEMENT(id), { newPosition, newDirection });
+        .emit(UPDATE_MOVEMENT(id), { position, direction });
     });
 
     socket.on(OLD_USER_INFO, ({ listener, userInfo: oldUserInfo }) => {
@@ -80,10 +80,14 @@ socketIo.on("connection", (socket) => {
         .emit(OLD_USER_INFO, oldUserInfo);
     });
 
-    socket.on("disconnect", () => {
+    socket.on(LEAVE_WORLD, () => {
       socket.broadcast
         .to("world1")
         .emit(LEAVE_WORLD, userInfo);
+
+      socket.removeAllListeners(LEAVE_WORLD);
+      socket.removeAllListeners(OLD_USER_INFO);
+      socket.removeAllListeners(USER_MOVEMENT);
     });
   });
 });
