@@ -10,23 +10,23 @@ const {
 
 async function updateFurniture(req, res, next) {
   const { roomId } = req.user;
-  const { id, position } = req.body;
+  const { _id, position } = req.body;
 
-  if (!(mongoose.Types.ObjectId.isValid(id))) {
+  if (!(mongoose.Types.ObjectId.isValid(_id))) {
     next(createRequestError());
     return;
   }
 
   try {
     await Room.findOneAndUpdate(
-      { _id: roomId, "furniture._id": id },
+      { _id: roomId, "furniture._id": _id },
       { $set: { "furniture.$.position": position } },
       { new: true },
     );
 
     res.json({
       ok: true,
-      data: { id, position },
+      data: { _id, position },
     });
   } catch (err) {
     console.log("💥 updateFurniture");
