@@ -17,7 +17,7 @@ const app = express();
 const server = http.createServer(app);
 
 app.use(logger("dev"));
-app.use(cors({ origin: true, credentials: true }));
+app.use(cors({ origin: ["http://www.three-world.club"], credentials: true }));
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -40,6 +40,7 @@ app.use((req, res, next) => {
 
 // error handler
 app.use((err, req, res, next) => {
+  console.log("💥", err);
   // TODO: 분기를 활용하여 에러핸들링
   // set locals, only providing error in development
   // req.app.get("env") === "development" ? err : {};
