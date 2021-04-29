@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 
 const Mailbox = require("../models/Mailbox");
+const User = require("../models/User");
 const Room = require("../models/Room");
 const {
   createRequestError,
@@ -41,7 +42,8 @@ async function postMail(req, res, next) {
   }
 
   try {
-    const addEmail = { $push: { mails: { content, sender } } };
+    const senderName = await User.findById(sender, "name");
+    const addEmail = { $push: { mails: { content, sender, name: senderName.name } } };
     const mailbox = await Mailbox.findByIdAndUpdate(id, addEmail, { new: true });
 
     if (!mailbox) {

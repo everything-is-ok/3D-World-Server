@@ -19,7 +19,7 @@ async function postLogin(req, res, next) {
     const nameValidationResult = validateName(name);
 
     if (nameValidationResult.error) {
-      name = "what is your name";
+      name = "VACODER";
     }
 
     let user = await User.findOne({ email });
