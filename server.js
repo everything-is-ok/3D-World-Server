@@ -44,7 +44,6 @@ app.use((req, res, next) => {
 
 // error handler
 app.use((err, req, res, next) => {
-  console.log(">>>>>>> ERROR ----", err);
   // TODO: 분기를 활용하여 에러핸들링
   // set locals, only providing error in development
   // req.app.get("env") === "development" ? err : {};
