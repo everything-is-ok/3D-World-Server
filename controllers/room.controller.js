@@ -1,25 +1,7 @@
 const mongoose = require("mongoose");
 
 const Room = require("../models/Room");
-const { createLoginError, createNotFoundError } = require("../utils/errors");
-
-async function getRoomByToken(req, res, next) {
-  if (!req.user) {
-    next(createLoginError("Unauthorized user"));
-    return;
-  }
-
-  const { roomId } = req.user;
-
-  try {
-    const room = await Room.findById(roomId).lean();
-
-    res.json({ ok: true, data: room });
-  } catch (err) {
-    console.log("💥 getRoomByToken");
-    next(err);
-  }
-}
+const { createNotFoundError } = require("../utils/errors");
 
 async function getRoomByUserId(req, res, next) {
   const { userId } = req.params;
@@ -44,5 +26,4 @@ async function getRoomByUserId(req, res, next) {
   }
 }
 
-exports.getRoomByToken = getRoomByToken;
 exports.getRoomByUserId = getRoomByUserId;

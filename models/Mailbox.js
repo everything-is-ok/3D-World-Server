@@ -9,6 +9,10 @@ const mailboxSchema = new mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId,
             required: [true, "sender is required."],
           },
+          name: {
+            type: String,
+            required: true,
+          },
           content: {
             type: String,
             required: [true, "content is required."],
