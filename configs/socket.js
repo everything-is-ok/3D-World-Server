@@ -27,7 +27,6 @@ socketIo.on("connection", (socket) => {
       .emit(NEW_USER_SOCKET_ID, { socketId: socket.id });
 
     socket.on(USER_MOVEMENT, ({ position, direction }) => {
-      console.log("move", position, direction, roomId);
       socket.broadcast
         .to(roomId)
         .emit(USER_MOVEMENT, { user, position, direction });
