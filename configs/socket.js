@@ -27,13 +27,14 @@ socketIo.on("connection", (socket) => {
       .emit(NEW_USER_SOCKET_ID, { socketId: socket.id });
 
     socket.on(USER_MOVEMENT, ({ position, direction }) => {
+      console.log("move", position, direction, roomId);
       socket.broadcast
         .to(roomId)
         .emit(USER_MOVEMENT, { user, position, direction });
     });
 
-    socket.on(OLD_USER_INFO, ({ listener, posInfo }) => {
-      socketIo.to(listener).emit(OLD_USER_INFO, posInfo);
+    socket.on(OLD_USER_INFO, ({ receiver, posInfo }) => {
+      socketIo.to(receiver).emit(OLD_USER_INFO, posInfo);
     });
 
     socket.on(CHAT_MESSAGE, ({ message }) => {
@@ -54,6 +55,19 @@ socketIo.on("connection", (socket) => {
         .to(roomId)
         .emit(LEAVE_ROOM, user);
     });
+
+    socket.on(LEAVE_ROOM, () => {
+      socket.broadcast
+        .to(roomId)
+        .emit(LEAVE_ROOM, user);
+
+      socket.leave(roomId);
+      socket.removeAllListeners(USER_MOVEMENT);
+      socket.removeAllListeners(OLD_USER_INFO);
+      socket.removeAllListeners(CHAT_MESSAGE);
+      socket.removeAllListeners(FURNITURE_MOVEMENT);
+      socket.removeAllListeners("disconnect");
+    });
   });
 
   // NOTE: World socket
@@ -68,10 +82,10 @@ socketIo.on("connection", (socket) => {
       .to("world1")
       .emit(NEW_USER_SOCKET_ID, { socketId: socket.id });
 
-    socket.on(USER_MOVEMENT, ({ id, newPosition, newDirection }) => {
+    socket.on(USER_MOVEMENT, ({ id, position, direction }) => {
       socket.broadcast
         .to("world1")
-        .emit(UPDATE_MOVEMENT(id), { newPosition, newDirection });
+        .emit(UPDATE_MOVEMENT(id), { position, direction });
     });
 
     socket.on(OLD_USER_INFO, ({ listener, userInfo: oldUserInfo }) => {
@@ -80,10 +94,14 @@ socketIo.on("connection", (socket) => {
         .emit(OLD_USER_INFO, oldUserInfo);
     });
 
-    socket.on("disconnect", () => {
+    socket.on(LEAVE_WORLD, () => {
       socket.broadcast
         .to("world1")
         .emit(LEAVE_WORLD, userInfo);
+
+      socket.removeAllListeners(LEAVE_WORLD);
+      socket.removeAllListeners(OLD_USER_INFO);
+      socket.removeAllListeners(USER_MOVEMENT);
     });
   });
 });
