@@ -17,7 +17,11 @@ const app = express();
 const server = http.createServer(app);
 
 app.use(logger("dev"));
-app.use(cors({ origin: ["http://www.three-world.club"], credentials: true }));
+app.use(cors({
+  origin: true,
+  credentials: true,
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+}));
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
