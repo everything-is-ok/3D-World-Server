@@ -10,11 +10,6 @@ const {
 } = require("../utils/errors");
 
 async function getMailList(req, res, next) {
-  if (!req.user) {
-    next(createAuthenticationError());
-    return;
-  }
-
   const { _id } = req.user;
 
   try {
@@ -115,11 +110,6 @@ async function deleteMail(req, res, next) {
 }
 
 async function deleteMailList(req, res, next) {
-  if (!req.user) {
-    next(createAuthenticationError());
-    return;
-  }
-
   const { _id } = req.user;
 
   try {
