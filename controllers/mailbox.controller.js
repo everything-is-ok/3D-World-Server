@@ -27,7 +27,7 @@ async function getMailList(req, res, next) {
 }
 
 async function postMail(req, res, next) {
-  const { _id: sender } = req.user;
+  const { _id: sender, name } = req.user;
   const { content } = req.body;
   const { id } = req.params;
 
@@ -37,8 +37,7 @@ async function postMail(req, res, next) {
   }
 
   try {
-    const senderName = await User.findById(sender, "name");
-    const addEmail = { $push: { mails: { content, sender, name: senderName.name } } };
+    const addEmail = { $push: { mails: { content, sender, name } } };
     const mailbox = await Mailbox.findByIdAndUpdate(id, addEmail, { new: true });
 
     if (!mailbox) {
