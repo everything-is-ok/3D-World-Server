@@ -132,6 +132,11 @@ async function deleteUser(req, res, next) {
   }
 }
 
+function logoutUser(req, res, next) {
+  res.clearCookie("authorization");
+  res.json({ ok: true, data: "Cleared Cookie" });
+}
+
 async function getUserById(req, res, next) {
   const { id } = req.params;
 
@@ -174,5 +179,6 @@ exports.postLogin = postLogin;
 exports.getUserByToken = getUserByToken;
 exports.updateUser = updateUser;
 exports.deleteUser = deleteUser;
+exports.logoutUser = logoutUser;
 exports.getUserById = getUserById;
 exports.getRandomUserIds = getRandomUserIds;
