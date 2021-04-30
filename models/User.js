@@ -4,7 +4,7 @@ const Room = require("./Room");
 const Furniture = require("./Furniture");
 
 const defaultPhotoURL = "https://cdn.pixabay.com/photo/2018/04/18/18/56/user-3331257__340.png";
-const defaultMusicURL = "https://www.youtube.com/watch?v=iTY3nhZQuXU";
+const defaultMusicURL = "https://youtu.be/sr3JaQ3h7YA";
 
 const userSchema = new mongoose.Schema({
   name: {

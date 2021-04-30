@@ -5,8 +5,6 @@ const User = require("../models/User");
 // TODO: authenticate middleware를 만들 것인가? deserialize에 포함시킬 것인가?
 async function deserialize(req, res, next) {
   const { authorization } = req.cookies;
-  console.log("server", req.cookies);
-  console.log("authorization", authorization);
 
   if (!authorization) {
     req.user = null;
