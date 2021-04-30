@@ -2,7 +2,6 @@ const mongoose = require("mongoose");
 
 const Mailbox = require("./Mailbox");
 
-// TODO 추후 rotation 안쓰면 삭제
 const roomSchema = new mongoose.Schema({
   furniture: [
     {
@@ -18,10 +17,6 @@ const roomSchema = new mongoose.Schema({
       position: {
         type: Array,
         required: true,
-      },
-      rotation: {
-        type: Array,
-        default: [0, 0, 0],
       },
     },
   ],
