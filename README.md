@@ -1,4 +1,4 @@
-# 🌐 3D Cyworld
+# 🌐 Three World
 
 ![npm](https://img.shields.io/badge/npm-v6.14.10-yellow?logo=npm&style=plastic)
 ![express](https://img.shields.io/badge/express-v4.16.1-61dafb?logo=Express&style=plastic)
